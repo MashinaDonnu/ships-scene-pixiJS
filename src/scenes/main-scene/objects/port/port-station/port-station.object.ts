@@ -28,7 +28,4 @@ export class PortStationObject extends AbstractObject {
         this._stationView.endFill()
         this.addChild(this._stationView);
     }
-
-
-
 }

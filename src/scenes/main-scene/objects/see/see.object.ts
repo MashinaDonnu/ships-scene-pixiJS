@@ -11,5 +11,7 @@ export class SeeObject extends AbstractObject {
         see.endFill();
 
         this.addChild(see)
+
+        // this.addChild(collectorShip)
     }
 }

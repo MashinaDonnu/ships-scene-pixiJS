@@ -1,8 +1,7 @@
 import {AbstractShip} from "scenes/main-scene/objects/abstract.ship";
-import {Graphics} from "pixi.js";
 
-export class CollectorShipObject extends AbstractShip {
-    color = '#2dbd56';
+export class LoadedShipObject extends AbstractShip {
+    color: '#cc3629';
     constructor() {
         super();
         this.generate()
@@ -10,6 +9,6 @@ export class CollectorShipObject extends AbstractShip {
 
     generate() {
         super.generate();
-        this.toEmpty();
+        this.fill();
     }
 }
