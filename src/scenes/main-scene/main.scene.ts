@@ -4,6 +4,10 @@ import {SeeObject} from "scenes/main-scene/objects/see/see.object";
 import {PortObject} from "scenes/main-scene/objects/port/port.object";
 import {Tween} from "@tweenjs/tween.js";
 import {config} from "common/config";
+import {Store} from "store/store";
+import {rootState} from "store/root/root-state";
+import {rootReducer} from "store/root/root-reducer";
+import {ERootActions} from "store/root/root-actions.enum";
 
 export interface IMainSceneParams extends IAbstractSceneParams {}
 
@@ -25,6 +29,19 @@ export class MainScene extends AbstractScene {
                 y: 400
             },
         });
+
+
+        const store = new Store<ERootActions, typeof rootState>(rootState, rootReducer)
+
+        console.log('store', store.getState())
+
+        store.subscribe((updated: any) => {
+            console.log('updated', updated)
+        })
+
+        store.dispatch({type: ERootActions.test})
+
+
 
         this.addChild(collectorShip)
 
