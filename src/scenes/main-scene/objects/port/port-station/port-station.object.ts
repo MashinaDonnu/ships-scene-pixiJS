@@ -1,16 +1,20 @@
-import {AbstractObject} from "common/abstract.object";
+import {AbstractObject, IAbstractObjectParams} from "common/abstract.object";
 import {Graphics} from "pixi.js";
 import {IRect} from "common/interfaces/rect.interface";
+
+export interface IPortStationObjectParams extends IAbstractObjectParams {
+    rect: IRect
+}
 
 export class PortStationObject extends AbstractObject {
 
     private _stationView: Graphics;
     rect: IRect;
 
-    constructor(rect: IRect) {
-        super();
-        this.rect = rect;
-        const { x, y, width, height } = rect;
+    constructor(params: IPortStationObjectParams) {
+        super(params);
+        this.rect = params.rect;
+        const { x, y, width, height } = params.rect;
         const station = new Graphics();
         station.lineStyle(2, 0xFF0000)
         station.drawRect(x, y, width, height)

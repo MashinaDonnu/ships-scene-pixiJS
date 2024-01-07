@@ -1,43 +1,67 @@
-import {AbstractObject} from "common/abstract.object";
+import {AbstractObject, IAbstractObjectParams} from "common/abstract.object";
 import {getPercentValue} from "common/helpers/get-percent-value";
 import {Container, Graphics} from "pixi.js";
 import {config} from "common/config";
 import {PortStationObject} from "scenes/main-scene/objects/port/port-station/port-station.object";
+import {IRect} from "common/interfaces/rect.interface";
+
+export interface IPortObjectParams extends IAbstractObjectParams {}
 
 export class PortObject extends AbstractObject {
-    private _stationCount = 4;
     portWidth = getPercentValue(35, config.width);
+    entranceHeightPercent = 33.33;
+    entranceWidthPercent = 7;
+    entranceOffsetTopPercent = 33.33;
+    entranceRect: IRect = { x: 0, y: 0, width: 0, height: 0};
 
-    constructor() {
-        super();
-        // const g = new Graphics()
-        // g.beginFill('#000', 1)
-        // g.drawRect(0, 0, this.portWidth, config.height);
-        // g.endFill()
-        //
-        // this.addChild(g)
+    private _stationCount = 4;
 
-        this.generateObstruction();
+    constructor(private params: IPortObjectParams) {
+        super(params);
+        this.generateEntrance();
         this.generateStations();
 
     }
 
-    generateObstruction() {
-        const obstructionWidth = getPercentValue(7, this.portWidth);
-        const obstructionHeight = getPercentValue(30, config.height);
-        const topObstruction = new Graphics();
-        topObstruction.beginFill('#fff')
-        topObstruction.drawRect(this.portWidth - obstructionWidth, 0, obstructionWidth, obstructionHeight)
-        topObstruction.endFill()
+    generateEntrance(): void {
+         const width = getPercentValue(this.entranceWidthPercent, this.portWidth);
+         const height= getPercentValue(this.entranceHeightPercent, config.height);
+         const offsetTop = getPercentValue(this.entranceOffsetTopPercent, config.height);
+         const entranceOffset = this.portWidth - width;
 
 
-        const bottomObstruction = new Graphics();
-        bottomObstruction.beginFill('#fff')
-        bottomObstruction.drawRect(this.portWidth - obstructionWidth, config.height - obstructionHeight, obstructionWidth, obstructionHeight)
-        bottomObstruction.endFill()
+         this.entranceRect.x = entranceOffset;
+         this.entranceRect.y = offsetTop;
+         this.entranceRect.width = width;
+         this.entranceRect.height = height;
 
-        this.addChild(topObstruction)
-        this.addChild(bottomObstruction)
+         const entrance = new Graphics();
+         // entrance.beginFill('#ccc', 1);
+         entrance.drawRect(entranceOffset, offsetTop, width, height);
+         // entrance.endFill();
+         this.addChild(entrance);
+         this.generateObstruction({
+             x: entranceOffset,
+             y: 0,
+             width,
+             height: offsetTop
+         })
+
+        this.generateObstruction({
+            x: entranceOffset,
+            y: offsetTop + height,
+            width,
+            height: config.height - (offsetTop + height)
+        })
+    }
+
+    generateObstruction(rect: IRect) {
+        const { x, y, width, height } = rect;
+        const obstruction = new Graphics();
+        obstruction.beginFill('#fff', 1);
+        obstruction.drawRect(x, y, width, height);
+        obstruction.endFill();
+        this.addChild(obstruction);
     }
 
     generateStations() {
@@ -48,10 +72,14 @@ export class PortObject extends AbstractObject {
 
         for (let i = 0; i < this._stationCount; i++) {
             const station = new PortStationObject({
-                x: 0,
-                y: i * (stationHeight + 10),
-                width: stationWidth,
-                height: stationHeight
+                name: 'port-station',
+                scene: this.scene,
+                rect: {
+                    x: 0,
+                    y: i * (stationHeight + 10),
+                    width: stationWidth,
+                    height: stationHeight
+                }
             })
 
             arr.push(station)

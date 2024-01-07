@@ -17,7 +17,7 @@ export class App {
     }
 
     start() {
-        this.setCurrentScene(new MainScene({app: this}));
+        this.setCurrentScene(new MainScene({ name: 'main-scene', app: this }));
         // this._pixiApp.ticker.add(() => {
         //     console.log('111')
         // })

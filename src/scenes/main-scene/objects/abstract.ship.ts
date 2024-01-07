@@ -1,7 +1,13 @@
-import {AbstractObject} from "common/abstract.object";
+import {AbstractObject, IAbstractObjectParams} from "common/abstract.object";
 import {Graphics} from "pixi.js";
+import {PortObject} from "scenes/main-scene/objects/port/port.object";
+import {IRect} from "common/interfaces/rect.interface";
 
-export class AbstractShip extends AbstractObject {
+export interface IAbstractShipParams extends IAbstractObjectParams {
+    rect: IRect;
+}
+
+export abstract class AbstractShip extends AbstractObject {
     isFilled = false;
     shipWidth = 150;
     shipHeight = 40;
@@ -9,17 +15,16 @@ export class AbstractShip extends AbstractObject {
     borderWidth = 3;
     private _view: Graphics
 
-    constructor() {
-        super();
+    protected constructor(private params: IAbstractShipParams) {
+        super(params);
+        const { x, y } = params.rect;
         this.width = this.shipWidth;
         this.height = this.shipHeight;
-        this.position.x = 400
-        this.position.y = 400
+        this.position.x = x
+        this.position.y = y
     }
 
-    generate() {
-
-    }
+    abstract generate(): void;
 
     fill() {
         const m = new Graphics()
