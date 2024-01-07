@@ -4,15 +4,16 @@ import {MainScene} from "scenes/main-scene/main.scene";
 import {AbstractScene} from "common/abstract.scene";
 import {Store} from "store/store";
 import {ERootActions} from "store/root/root-actions.enum";
-import {rootState} from "store/root/root-state";
+import {rootState, TRootState} from "store/root/root-state";
 import {rootReducer} from "store/root/root-reducer";
+
+export type AppStore = Store<ERootActions, TRootState>
 
 export class App {
     currentScene: AbstractScene;
     config: Partial<IApplicationOptions>;
     pixiApp: Application;
-    store = new Store<ERootActions, typeof rootState>(rootState, rootReducer);
-
+    store = new Store<ERootActions, TRootState>(rootState, rootReducer);
 
     constructor(config: Partial<IApplicationOptions>) {
         this.pixiApp = new Application(config)

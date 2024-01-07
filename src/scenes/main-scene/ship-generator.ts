@@ -5,20 +5,28 @@ import {AbstractShip} from "scenes/main-scene/objects/abstract.ship";
 import {LoadedShipObject} from "scenes/main-scene/objects/loaded-ship/loaded-ship.object";
 import {IRect} from "common/interfaces/rect.interface";
 import {CollectorShipObject} from "scenes/main-scene/objects/collector-ship/collector-ship.object";
+import {AppStore} from "app";
+import {generateShipAction} from "store/root/root-action-creators";
 
 export class ShipGenerator {
     port: PortObject;
+    store: AppStore
 
     constructor(private scene: MainScene) {
         this.port = scene.port;
+        this.store = scene.app.store;
     }
 
-    generate(): AbstractShip {
+    generate(): void {
         const offsetY = this.getPortEntranceY();
-        return this.getRandomShip({
+        const ship = this.getRandomShip({
             x: config.width,
             y: offsetY,
-        })
+        });
+
+        this.scene.addChild(ship);
+        this.store.dispatch(generateShipAction(ship))
+
     }
 
     getPortEntranceY(): number {

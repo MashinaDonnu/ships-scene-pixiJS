@@ -1,3 +1,6 @@
 export enum ERootActions {
-    test
+    test,
+    generateShip = 'generateShip',
+    moveToCollectorShipsQueue = 'moveToCollectorShipsQueue',
+    moveToLoadedShipsQueue = 'moveToLoadedShipsQueue',
 }

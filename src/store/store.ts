@@ -5,22 +5,26 @@ export type TReducerCb<T, A> = (state: T, action: IAction<A>) => T;
 
 export class Store<A, T> {
 
-    listeners: TListenerCb<T>[] = [];
+    private _listeners: TListenerCb<T>[] = [];
 
     constructor(private state: T, public reducer: TReducerCb<T, A>) {}
 
     subscribe(fn: TListenerCb<T>) {
-        this.listeners.push(fn)
+        this._listeners.push(fn)
         return {
             unsubscribe: () => {
-                this.listeners = this.listeners.filter(listener => listener !== fn);
+                this._listeners = this._listeners.filter(listener => listener !== fn);
             }
         }
     }
 
     dispatch<P>(action: IAction<A, P>) {
         this.state = this.reducer(this.state, action);
-        this.listeners.forEach(listener => listener(this.state));
+        this._listeners.forEach(listener => listener(this.state));
+    }
+
+    get listeners(): TListenerCb<T>[]  {
+        return this._listeners;
     }
 
     getState() {
