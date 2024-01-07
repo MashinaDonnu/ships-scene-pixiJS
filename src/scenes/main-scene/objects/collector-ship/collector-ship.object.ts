@@ -6,6 +6,7 @@ export interface ICollectorShipObjectParams extends IAbstractShipParams {}
 
 export class CollectorShipObject extends AbstractShip {
     color = '#2dbd56';
+
     constructor(params: ICollectorShipObjectParams) {
         super(params);
         this.generate()

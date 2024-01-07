@@ -4,10 +4,8 @@ import {SeeObject} from "scenes/main-scene/objects/see/see.object";
 import {PortObject} from "scenes/main-scene/objects/port/port.object";
 import {Tween} from "@tweenjs/tween.js";
 import {config} from "common/config";
-import {Store} from "store/store";
-import {rootState} from "store/root/root-state";
-import {rootReducer} from "store/root/root-reducer";
 import {ERootActions} from "store/root/root-actions.enum";
+import {ShipGenerator} from "scenes/main-scene/ship-generator";
 
 export interface IMainSceneParams extends IAbstractSceneParams {}
 
@@ -21,17 +19,19 @@ export class MainScene extends AbstractScene {
         this.addChild(this.see)
             .addChild(this.port)
 
-        const collectorShip = new CollectorShipObject({
-            name: 'collector-ship',
-            scene: this,
-            rect: {
-                x: 400,
-                y: 400
-            },
-        });
+        // const collectorShip = new CollectorShipObject({
+        //     name: 'collector-ship',
+        //     scene: this,
+        //     rect: {
+        //         x: 400,
+        //         y: 400
+        //     },
+        // });
+        // this.addChild(collectorShip)
 
 
-        const store = new Store<ERootActions, typeof rootState>(rootState, rootReducer)
+
+        const store = this.app.store;
 
         console.log('store', store.getState())
 
@@ -42,19 +42,23 @@ export class MainScene extends AbstractScene {
         store.dispatch({type: ERootActions.test})
 
 
+        const shipGenerator = new ShipGenerator(this);
+        const ship = shipGenerator.generate();
+        this.addChild(ship)
 
-        this.addChild(collectorShip)
 
-        const coords = { x: config.width, y: 200 };
+
+        const coords = { x: config.width, y: ship.position.y };
         const tween = new Tween(coords)
-        tween.to({ x: 700, y: 200 }, 3000).onUpdate(() => {
+        tween.to({ x: this.port.width, y: ship.position.y }, 3000).onUpdate(() => {
             console.log('onUpdate')
-            collectorShip.position.x = coords.x;
-            collectorShip.position.y = coords.y;
+            ship.position.x = coords.x;
+            ship.position.y = coords.y;
         })
 
         params.app.pixiApp.ticker.add(() => {
             tween.update()
         })
+
     }
 }
