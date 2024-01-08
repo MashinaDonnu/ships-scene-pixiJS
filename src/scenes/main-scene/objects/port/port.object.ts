@@ -4,6 +4,7 @@ import {Container, Graphics} from "pixi.js";
 import {config} from "common/config";
 import {PortStationObject} from "scenes/main-scene/objects/port/port-station/port-station.object";
 import {IRect} from "common/interfaces/rect.interface";
+import {AbstractShip} from "scenes/main-scene/objects/abstract.ship";
 
 export interface IPortObjectParams extends IAbstractObjectParams {}
 
@@ -13,11 +14,15 @@ export class PortObject extends AbstractObject {
     entranceWidthPercent = 7;
     entranceOffsetTopPercent = 33.33;
     entranceRect: IRect = { x: 0, y: 0, width: 0, height: 0};
+    isAllPiersOccupied = false;
+    shipsInPort: AbstractShip[] = [];
+
 
     private _stationCount = 4;
 
     constructor(private params: IPortObjectParams) {
         super(params);
+        this.width = this.portWidth;
         this.generateEntrance();
         this.generateStations();
 
