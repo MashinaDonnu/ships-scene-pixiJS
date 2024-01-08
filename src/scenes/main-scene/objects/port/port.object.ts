@@ -15,10 +15,10 @@ export class PortObject extends AbstractObject {
     entranceOffsetTopPercent = 33.33;
     entranceRect: IRect = { x: 0, y: 0, width: 0, height: 0};
     isAllPiersOccupied = false;
-    shipsInPort: AbstractShip[] = [];
-
+    entrance: Graphics;
 
     private _stationCount = 4;
+    stations: PortStationObject[] = []
 
     constructor(private params: IPortObjectParams) {
         super(params);
@@ -41,9 +41,13 @@ export class PortObject extends AbstractObject {
          this.entranceRect.height = height;
 
          const entrance = new Graphics();
+         this.entrance = entrance;
          // entrance.beginFill('#ccc', 1);
+        // entrance.position.x = this.entranceRect.x;
+        // entrance.position.y = this.entranceRect.y;
+        entrance.beginFill('#1c85bd', 1)
          entrance.drawRect(entranceOffset, offsetTop, width, height);
-         // entrance.endFill();
+         entrance.endFill();
          this.addChild(entrance);
          this.generateObstruction({
              x: entranceOffset,
@@ -73,7 +77,6 @@ export class PortObject extends AbstractObject {
         const stationsContainer = new Container();
         const stationWidth = getPercentValue(15, this.portWidth);
         const stationHeight = getPercentValue(20, config.height);
-        const arr: any[] = []
 
         for (let i = 0; i < this._stationCount; i++) {
             const station = new PortStationObject({
@@ -87,16 +90,11 @@ export class PortObject extends AbstractObject {
                 }
             })
 
-            arr.push(station)
+            this.stations.push(station)
 
 
             stationsContainer.addChild(station);
         }
-
-
-        setTimeout(() => {
-            arr[1].fill();
-        }, 3000)
 
         this.addChild(stationsContainer);
     }

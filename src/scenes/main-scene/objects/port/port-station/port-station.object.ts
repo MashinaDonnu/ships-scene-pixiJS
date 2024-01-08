@@ -10,6 +10,7 @@ export class PortStationObject extends AbstractObject {
 
     private _stationView: Graphics;
     rect: IRect;
+    isFilled = false
 
     constructor(params: IPortStationObjectParams) {
         super(params);
@@ -31,5 +32,6 @@ export class PortStationObject extends AbstractObject {
         this._stationView.drawRect(x, y, width, height)
         this._stationView.endFill()
         this.addChild(this._stationView);
+        this.isFilled = true;
     }
 }

@@ -6,14 +6,16 @@ import {LoadedShipObject} from "scenes/main-scene/objects/loaded-ship/loaded-shi
 import {IRect} from "common/interfaces/rect.interface";
 import * as TWEEN from "@tweenjs/tween.js";
 import {config} from "common/config";
-import {moveToCollectorShipsQueueAction} from "store/root/root-action-creators";
+import {moveShipToPortAction, moveToCollectorShipsQueueAction} from "store/root/root-action-creators";
+import {checkObjectsCollision} from "common/helpers/check-objects-collision";
+import {PortStationObject} from "scenes/main-scene/objects/port/port-station/port-station.object";
 
 export class ShipController {
     store: AppStore
     generatedShipsQueue: AbstractShip[] = [];
     collectorShipsQueue: CollectorShipObject[] = [];
     loadedShipsQueue: LoadedShipObject[] = [];
-    private _tweenMap = new Map<AbstractShip, TWEEN.Tween<any>>()
+    private _tweenMap = new Map<AbstractShip, TWEEN.Tween<IRect>>()
 
     constructor(private scene: MainScene) {
         this.store = scene.app.store;
@@ -44,7 +46,7 @@ export class ShipController {
 
     startGeneratedShips(ship: AbstractShip): void {
         const rect: IRect = { x: config.width, y: ship.position.y };
-        const toRect = { x: this.scene.port.width - this.scene.port.entranceRect.width, y: ship.position.y }
+        const toRect = { x: (this.scene.port.width - this.scene.port.entranceRect.width) - config.ship.height + 10, y: ship.position.y }
 
         if (this.scene.port.isAllPiersOccupied) {
             toRect.x = this.scene.loadedShipQueueRect.x;
@@ -57,13 +59,36 @@ export class ShipController {
 
         const tween = new TWEEN.Tween(rect);
         tween.to(toRect, 3000).onUpdate(() => {
-            // console.log('onUpdate')
             ship.position.x = rect.x;
             ship.position.y = rect.y;
-        }).start()
+
+            if (checkObjectsCollision(ship, this.scene.port.entrance) && this.scene.port.entranceRect.x + 5 >= ship.position.x) {
+
+            }
+        }).onComplete(() => {
+            if (!ship.isInPort) {
+                ship.isInPort = true;
+                this.store.dispatch(moveShipToPortAction(ship), { dispatchEvent: false });
+                this.moveToFreeStation(ship);
+            }
+        })
+            .start()
 
         if (!this._tweenMap.has(ship)) {
             this._tweenMap.set(ship, tween)
+        }
+    }
+
+    findFreePortStation(): PortStationObject {
+        return this.scene.port.stations.find(s => !s.isFilled)
+    }
+
+    moveToFreeStation(ship: AbstractShip): void {
+        const freeStation = this.findFreePortStation();
+        if (freeStation) {
+            console.log(freeStation)
+             const tween = this._tweenMap.get(ship);
+             ship.rotation = Math.PI / 2
         }
     }
 

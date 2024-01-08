@@ -16,8 +16,24 @@ export function rootReducer(state: TRootState, action: IAction<ERootActions, any
             return { ...state, collectorShipsQueue: [...state.collectorShipsQueue, action.payload] }
         }
 
+        case ERootActions.removeFromCollectorShipsQueue: {
+            return { ...state, collectorShipsQueue: state.collectorShipsQueue.slice(1) }
+        }
+
         case ERootActions.moveToLoadedShipsQueue: {
             return { ...state, loadedShipsQueue: [...state.loadedShipsQueue, action.payload] }
+        }
+
+        case ERootActions.removeFromLoadedShipsQueue: {
+            return { ...state, loadedShipsQueue: state.loadedShipsQueue.slice(1) }
+        }
+
+        case ERootActions.moveShipToPort: {
+            return { ...state, shipsInPort: [...state.shipsInPort, action.payload] }
+        }
+
+        case ERootActions.removeShipFromPort: {
+            return { ...state, shipsInPort: state.shipsInPort.filter(s => s !== action.payload) }
         }
     }
 }

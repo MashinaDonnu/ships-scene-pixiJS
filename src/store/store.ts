@@ -34,6 +34,6 @@ export class Store<A, T> {
     }
 
     getState() {
-        return JSON.parse(JSON.stringify(this.state))
+        return this.state
     }
 }
