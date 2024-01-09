@@ -1,6 +1,7 @@
 import {AbstractObject, IAbstractObjectParams} from "common/abstract.object";
 import {Graphics} from "pixi.js";
 import {IRect} from "common/interfaces/rect.interface";
+import {config} from "common/config";
 
 export interface IPortStationObjectParams extends IAbstractObjectParams {
     rect: IRect
@@ -11,6 +12,7 @@ export class PortStationObject extends AbstractObject {
     private _stationView: Graphics;
     rect: IRect;
     isFilled = false
+    distance = 0
 
     constructor(params: IPortStationObjectParams) {
         super(params);

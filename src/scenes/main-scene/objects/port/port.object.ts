@@ -77,6 +77,8 @@ export class PortObject extends AbstractObject {
         const stationsContainer = new Container();
         const stationWidth = getPercentValue(15, this.portWidth);
         const stationHeight = getPercentValue(20, config.height);
+        const portCenterX = config.height / 2;
+        const center = Math.floor(this._stationCount / 2);
 
         for (let i = 0; i < this._stationCount; i++) {
             const station = new PortStationObject({
@@ -90,11 +92,17 @@ export class PortObject extends AbstractObject {
                 }
             })
 
+            // station.distance = Math.abs((i - center) * 1000)
+            station.distance = Math.abs((i - center + (i >= center ? 1 : 0)) * 1000)
+
             this.stations.push(station)
 
 
             stationsContainer.addChild(station);
         }
+
+
+        console.log('stations', this.stations.map(s => s.distance))
 
         this.addChild(stationsContainer);
     }
