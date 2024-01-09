@@ -48,9 +48,13 @@ export class MainScene extends AbstractScene {
 
         shipController.init();
 
-        // setInterval(() => {
+        setInterval(() => {
+            shipGenerator.generate();
+        }, 5000)
+
+        // setTimeout(() => {
         //     shipGenerator.generate();
-        // }, 5000)
+        // }, 10000)
         shipGenerator.generate();
         // const ship = shipGenerator.generate();
         // this.addChild(ship)

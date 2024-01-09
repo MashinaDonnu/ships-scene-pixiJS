@@ -93,9 +93,9 @@ export class PortObject extends AbstractObject {
                 }
             })
 
-            if (i % 2 === 0) {
-                station.fill()
-            }
+            // if (i % 2 === 0) {
+            //     station.fill()
+            // }
 
             // station.distance = Math.abs((i - center) * 1000)
             station.distance = Math.abs((i - center + (i >= center ? 1 : 0)) * 1000)
@@ -105,6 +105,9 @@ export class PortObject extends AbstractObject {
 
             stationsContainer.addChild(station);
         }
+
+        this.stations[1].fill()
+
 
 
         console.log('stations', this.stations.map(s => s.distance))

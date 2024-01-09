@@ -65,7 +65,7 @@ export class ShipController {
             if (!ship.isInPort) {
                 ship.isInPort = true;
                 this.store.dispatch(moveShipToPortAction(ship), { dispatchEvent: false });
-                this.moveToFreeStation(ship);
+                this.directShipToStation(ship);
             }
         })
             .start()
@@ -85,42 +85,51 @@ export class ShipController {
         if (ship instanceof CollectorShipObject) {
             this.moveToLoadedStation(ship);
         } else {
-            this.moveToFreeStation(ship)
+            this.moveToFreeStation(ship);
         }
     }
 
     moveToLoadedStation(ship: AbstractShip): void {
         const loadedStation = this.findLoadedStation();
         if (loadedStation) {
-
+            this.moveToStation(ship, loadedStation)
         }
     }
 
     moveToFreeStation(ship: AbstractShip): void {
         const freeStation = this.findFreePortStation();
         if (freeStation) {
+            this.moveToStation(ship, freeStation)
+        }
+    }
+
+    moveToStation(ship: AbstractShip, station: PortStationObject): void {
+
+            if (ship instanceof CollectorShipObject) {
+                station.isFilled = false;
+            } else {
+                station.isFilled = true;
+            }
+
             const portCenterX = config.height / 2;
-            const stationCenterX = freeStation.rect.y + freeStation.height / 2;
-            freeStation.isFilled = true;
-            console.log('freeStation', freeStation)
+            const stationCenterX = station.rect.y + station.height / 2;
+
             const tween = new TWEEN.Tween(ship);
             tween.to({rotation: ( stationCenterX < portCenterX ? Math.PI / 2 : -(Math.PI / 2))}, 2000)
 
             const moveToFreeStation = new TWEEN.Tween(ship)
-            moveToFreeStation.to({ y: freeStation.rect.y + freeStation.rect.height / 2 }, freeStation.distance).onUpdate(() => {
-                console.log('moveToFreeStation')
-            });
+            moveToFreeStation.to({ y: station.rect.y + station.rect.height / 2 }, station.distance);
 
             const rotateLeft = new TWEEN.Tween(ship);
             rotateLeft.to({ rotation: 0 }, 2000)
 
             const moveToStation = new TWEEN.Tween(ship);
-            moveToStation.to({x: freeStation.rect.width + config.ship.width / 2}, 2000).onComplete(() => {
+            moveToStation.to({x: station.rect.width + config.ship.width / 2}, 2000).onComplete(() => {
                 if (ship instanceof CollectorShipObject) {
-                    freeStation.fill()
+                    station.fill()
                 }
 
-                this.actionWithLoad(ship, freeStation);
+                this.actionWithLoad(ship, station);
             })
 
 
@@ -142,50 +151,69 @@ export class ShipController {
             this.setShipTween(ship, moveToFreeStation)
             this.setShipTween(ship, rotateLeft)
             this.setShipTween(ship, moveToStation)
-
-        }
     }
 
     actionWithLoad(ship: AbstractShip, station: PortStationObject): void {
         if (ship instanceof CollectorShipObject) {
-            if (station.isFilled) {
-                station.toEmpty();
-                ship.fill();
+            station.toEmpty();
+            ship.fill();
 
-                this.clearTween(ship);
-
-                const tween = new TWEEN.Tween(ship);
-                tween.to({ x: (this.scene.port.width - this.scene.port.entranceRect.width) - config.ship.width + 10 }, 2000);
-
-                const rotateRight = new TWEEN.Tween(ship);
-                rotateRight.to({ rotation:  Math.PI / 2 }, 2000)
-
-                const moveToEntrance = new TWEEN.Tween(ship);
-                moveToEntrance.to({ y: this.scene.shipGenerator.getPortEntranceY() }, 2000)
-
-                const rotateLeft = new TWEEN.Tween(ship);
-                rotateLeft.to({ rotation:  0 }, 2000)
-
-                const goFromPort = new TWEEN.Tween(ship);
-                goFromPort.to({ x: config.width }, 5000)
-
-                tween.chain(rotateRight)
-                rotateRight.chain(moveToEntrance)
-                moveToEntrance.chain(rotateLeft)
-                rotateLeft.chain(goFromPort)
-                tween.start();
-
-                this.setShipTween(ship, tween)
-                this.setShipTween(ship, rotateRight)
-                this.setShipTween(ship, moveToEntrance)
-                this.setShipTween(ship, rotateLeft)
-                this.setShipTween(ship, goFromPort)
-
-            }
+            this.moveShipFromPort(ship, station);
 
         } else {
+            station.fill();
+            ship.toEmpty()
 
+            this.moveShipFromPort(ship, station);
         }
+    }
+
+    moveShipFromPort(ship: AbstractShip, station: PortStationObject): void {
+        this.clearTween(ship);
+        const portCenterX = config.height / 2;
+        const stationCenterX = station.rect.y + station.height / 2;
+
+        const tween = new TWEEN.Tween(ship);
+        tween.to({ x: (this.scene.port.width - this.scene.port.entranceRect.width) - config.ship.width + 10 }, 2000);
+
+        const rotateRight = new TWEEN.Tween(ship);
+        rotateRight.to({ rotation:  stationCenterX < portCenterX ? Math.PI / 2 : 0 }, 2000)
+
+        const moveToEntrance = new TWEEN.Tween(ship);
+        moveToEntrance.to({
+            y: stationCenterX < portCenterX ? this.scene.shipGenerator.getPortEntranceY() - config.ship.width / 1.5 : this.scene.shipGenerator.getPortEntranceY() + config.ship.width
+        }, 2000)
+
+        const rotateLeft = new TWEEN.Tween(ship);
+        rotateLeft.to({ rotation: stationCenterX < portCenterX ? 0 : -(Math.PI / 2) }, 2000)
+
+        const goFromPort = new TWEEN.Tween(ship);
+        goFromPort.to({ x: config.width }, 5000)
+
+        if (stationCenterX < portCenterX) {
+            tween.chain(rotateRight)
+            rotateRight.chain(moveToEntrance)
+            moveToEntrance.chain(rotateLeft)
+            rotateLeft.chain(goFromPort)
+        } else {
+            tween.chain(rotateLeft)
+            rotateLeft.chain(moveToEntrance)
+            moveToEntrance.chain(rotateRight)
+            rotateRight.chain(goFromPort)
+            // rotateRight
+            //     .chain(moveToEntrance)
+            // moveToEntrance.chain(rotateRight)
+            // rotateLeft.chain(goFromPort)
+        }
+
+        tween.start();
+
+
+        this.setShipTween(ship, tween)
+        this.setShipTween(ship, rotateRight)
+        this.setShipTween(ship, moveToEntrance)
+        this.setShipTween(ship, rotateLeft)
+        this.setShipTween(ship, goFromPort)
     }
 
     moveShipToQueue(ship: AbstractShip) {
