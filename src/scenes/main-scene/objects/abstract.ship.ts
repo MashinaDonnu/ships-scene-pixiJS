@@ -31,6 +31,7 @@ export abstract class AbstractShip extends AbstractObject {
     fill() {
         this.removeChild(this._view);
         this._view = new Graphics();
+        this._view.lineStyle(this.borderWidth, this.color);
         this._view.beginFill(this.color, 1)
         this._view.drawRect(0, 0, this.shipWidth, this.shipHeight)
         this._view.endFill()

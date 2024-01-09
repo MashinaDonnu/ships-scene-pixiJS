@@ -18,22 +18,29 @@ export class PortStationObject extends AbstractObject {
         super(params);
         this.rect = params.rect;
         const { x, y, width, height } = params.rect;
-        const station = new Graphics();
-        station.lineStyle(2, 0xFF0000)
-        station.drawRect(x, y, width, height)
-
-        this._stationView = station;
-
-        this.addChild(station);
+        this.toEmpty();
     }
 
-    fill() {
+    fill(): void {
         const { x, y, width, height } = this.rect;
         this.removeChild(this._stationView);
+        this._stationView = new Graphics();
         this._stationView.beginFill(0xFF0000, 1)
         this._stationView.drawRect(x, y, width, height)
         this._stationView.endFill()
         this.addChild(this._stationView);
         this.isFilled = true;
+    }
+
+    toEmpty(): void {
+        console.log('toEmpty')
+        const { x, y, width, height } = this.rect;
+        this.removeChild(this._stationView);
+        this._stationView = new Graphics();
+        this._stationView.beginFill(0xFF0000, 0)
+        this._stationView.lineStyle(2, 0xFF0000)
+        this._stationView.drawRect(x, y, width, height)
+        this.addChild(this._stationView);
+        this.isFilled = false;
     }
 }

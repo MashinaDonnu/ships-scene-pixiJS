@@ -16,6 +16,8 @@ export class MainScene extends AbstractScene {
     collectorsShipQueueRect: IRect;
     loadedShipQueueRect: IRect;
 
+    shipGenerator: ShipGenerator;
+
     constructor(params: IMainSceneParams) {
         super(params);
 
@@ -41,13 +43,14 @@ export class MainScene extends AbstractScene {
 
 
         const shipGenerator = new ShipGenerator(this);
+        this.shipGenerator = shipGenerator;
         const shipController = new ShipController(this);
 
         shipController.init();
 
-        setInterval(() => {
-            shipGenerator.generate();
-        }, 5000)
+        // setInterval(() => {
+        //     shipGenerator.generate();
+        // }, 5000)
         shipGenerator.generate();
         // const ship = shipGenerator.generate();
         // this.addChild(ship)

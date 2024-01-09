@@ -81,6 +81,7 @@ export class PortObject extends AbstractObject {
         const center = Math.floor(this._stationCount / 2);
 
         for (let i = 0; i < this._stationCount; i++) {
+
             const station = new PortStationObject({
                 name: 'port-station' + i,
                 scene: this.scene,
@@ -91,6 +92,10 @@ export class PortObject extends AbstractObject {
                     height: stationHeight
                 }
             })
+
+            if (i % 2 === 0) {
+                station.fill()
+            }
 
             // station.distance = Math.abs((i - center) * 1000)
             station.distance = Math.abs((i - center + (i >= center ? 1 : 0)) * 1000)
