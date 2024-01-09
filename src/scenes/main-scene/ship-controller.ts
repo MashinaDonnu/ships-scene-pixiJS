@@ -38,16 +38,24 @@ export class ShipController {
         });
 
         this.scene.app.pixiApp.ticker.add(() => {
-            for (const [ship, tween] of this._tweenMap) {
-                tween.update();
-            }
+            TWEEN.update()
+            // for (const [ship, tween] of this._tweenMap) {
+            //     tween.update();
+            //     if (tween['_chainedTweens'].length) {
+            //         console.log('daa')
+            //         for (let i = 0; i < tween['_chainedTweens'].length; i++) {
+            //             console.log(tween['_chainedTweens'][i])
+            //             tween['_chainedTweens'][i].update()
+            //         }
+            //     }
+            // }
         })
     }
 
     startGeneratedShips(ship: AbstractShip): void {
         const rect: IRect = { x: config.width, y: ship.position.y };
-        const toRect = { x: (this.scene.port.width - this.scene.port.entranceRect.width) - config.ship.height + 10, y: ship.position.y }
-
+        const toRect = { x: (this.scene.port.width - this.scene.port.entranceRect.width) - config.ship.width + 10, y: ship.position.y }
+        console.log('toRect', toRect)
         if (this.scene.port.isAllPiersOccupied) {
             toRect.x = this.scene.loadedShipQueueRect.x;
             toRect.y = this.scene.loadedShipQueueRect.y;
@@ -57,10 +65,10 @@ export class ShipController {
             }
         }
 
-        const tween = new TWEEN.Tween(rect);
+        const tween = new TWEEN.Tween(ship);
         tween.to(toRect, 3000).onUpdate(() => {
-            ship.position.x = rect.x;
-            ship.position.y = rect.y;
+            // ship.position.x = rect.x;
+            // ship.position.y = rect.y;
 
             if (checkObjectsCollision(ship, this.scene.port.entrance) && this.scene.port.entranceRect.x + 5 >= ship.position.x) {
 
@@ -87,8 +95,27 @@ export class ShipController {
         const freeStation = this.findFreePortStation();
         if (freeStation) {
             console.log(freeStation)
-             const tween = this._tweenMap.get(ship);
-             ship.rotation = Math.PI / 2
+            const tween = new TWEEN.Tween(ship);
+            tween.to({rotation: Math.PI / 2}, 2000)
+
+            const moveToFreeStation = new TWEEN.Tween(ship)
+            moveToFreeStation.to({ y: freeStation.y + freeStation.height / 2 }, 2000)
+
+            const rotateLeft = new TWEEN.Tween(ship);
+            rotateLeft.to({ rotation: 0 }, 2000)
+
+            const moveToStation = new TWEEN.Tween(ship);
+            moveToStation.to({x: freeStation.rect.width + config.ship.width / 2}, 2000)
+
+            tween.chain(moveToFreeStation)
+            moveToFreeStation.chain(rotateLeft)
+            rotateLeft.chain(moveToStation)
+
+
+            tween.start()
+            // moveToFreeStation.start()
+            this._tweenMap.set(ship, tween)
+
         }
     }
 

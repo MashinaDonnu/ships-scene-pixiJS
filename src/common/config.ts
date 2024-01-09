@@ -3,7 +3,7 @@ export const config = {
     height: 800,
 
     ship: {
-        width: 150,
+        width: 100,
         height: 40
     }
 }

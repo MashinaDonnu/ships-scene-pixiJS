@@ -36,11 +36,6 @@ export class MainScene extends AbstractScene {
 
         const store = this.app.store;
 
-        console.log('store', store.getState())
-
-        store.subscribe((updated: any) => {
-            console.log('updated', updated)
-        })
 
         store.dispatch({type: ERootActions.test})
 
@@ -50,9 +45,13 @@ export class MainScene extends AbstractScene {
 
         shipController.init();
 
-        setInterval(() => {
-            // shipGenerator.generate();
-        }, 5000)
+        // setTimeout(() => {
+        //     shipGenerator.generate();
+        // }, 2000)
+        //
+        // setTimeout(() => {
+        //     shipGenerator.generate();
+        // }, 10000)
         shipGenerator.generate();
         // const ship = shipGenerator.generate();
         // this.addChild(ship)

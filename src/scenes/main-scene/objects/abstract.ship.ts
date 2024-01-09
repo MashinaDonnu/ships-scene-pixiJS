@@ -35,7 +35,6 @@ export abstract class AbstractShip extends AbstractObject {
         this._view.drawRect(0, 0, this.shipWidth, this.shipHeight)
         this._view.endFill()
         this._view.pivot.set(this.shipWidth / 2, this.shipHeight / 2)
-        console.log(2222, this.width, this.height)
         this.addChild(this._view)
     }
 

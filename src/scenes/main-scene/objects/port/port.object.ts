@@ -9,7 +9,7 @@ import {AbstractShip} from "scenes/main-scene/objects/abstract.ship";
 export interface IPortObjectParams extends IAbstractObjectParams {}
 
 export class PortObject extends AbstractObject {
-    portWidth = getPercentValue(35, config.width);
+    portWidth = getPercentValue(40, config.width);
     entranceHeightPercent = 33.33;
     entranceWidthPercent = 7;
     entranceOffsetTopPercent = 33.33;
@@ -80,7 +80,7 @@ export class PortObject extends AbstractObject {
 
         for (let i = 0; i < this._stationCount; i++) {
             const station = new PortStationObject({
-                name: 'port-station',
+                name: 'port-station' + i,
                 scene: this.scene,
                 rect: {
                     x: 0,
