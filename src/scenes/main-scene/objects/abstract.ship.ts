@@ -1,6 +1,5 @@
 import {AbstractObject, IAbstractObjectParams} from "common/abstract.object";
-import {Container, Graphics, Sprite} from "pixi.js";
-import {PortObject} from "scenes/main-scene/objects/port/port.object";
+import {Graphics} from "pixi.js";
 import {IRect} from "common/interfaces/rect.interface";
 import {config} from "common/config";
 
@@ -9,15 +8,14 @@ export interface IAbstractShipParams extends IAbstractObjectParams {
 }
 
 export abstract class AbstractShip extends AbstractObject {
-    isFilled = false;
+
     isInPort = false;
-    isMoveToPort = false;
-    isMoveToStation = false;
-    isMoveFromPort = false;
+    isInQueue = true;
     shipWidth = config.ship.width;
     shipHeight = config.ship.height;
     color = '#000'
     borderWidth = 3;
+
     private _view: Graphics
 
     protected constructor(private params: IAbstractShipParams) {
