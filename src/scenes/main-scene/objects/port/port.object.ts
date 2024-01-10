@@ -110,8 +110,8 @@ export class PortObject extends AbstractObject {
         // this.stations[1].fill()
 
         setTimeout(() => {
-            this.stations[1].fill()
-            this.stations[2].fill()
+            // this.stations[1].fill()
+            // this.stations[2].fill()
         }, 10000)
 
 
