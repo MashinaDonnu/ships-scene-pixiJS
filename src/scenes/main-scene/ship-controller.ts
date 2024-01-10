@@ -41,7 +41,7 @@ export class ShipController {
         this.store.subscribe((state, action) => {
             const { generatedShipsQueue, collectorShipsQueue, loadedShipsQueue, allShipsQueue } = state;
             this.generatedShipsQueue = generatedShipsQueue;
-            this.collectorShipsQueue = generatedShipsQueue;
+            this.collectorShipsQueue = collectorShipsQueue;
             this.loadedShipsQueue = loadedShipsQueue;
             this.allShipsQueue = allShipsQueue;
 
@@ -218,7 +218,10 @@ export class ShipController {
         const goFromPort = new TWEEN.Tween(ship);
         goFromPort.to({ x: config.width }, 5000).onStart(() => () => {
             this.shipStateController.setShipState(ship, 'isMovingFromPort')
-        }).onComplete(() => ship.destroy());
+        }).onComplete(() => {
+            ship.destroy();
+            this._tweenMap.delete(ship);
+        });
 
         if (isMoveToTop) {
             tween.chain(rotateRight)
@@ -285,8 +288,6 @@ export class ShipController {
             if (!firstShip) {
                 return false;
             }
-            // const firstShip = this.allShipsQueue[0];
-
 
             const shipStation = this.getShipStation(firstShip);
 
@@ -301,6 +302,7 @@ export class ShipController {
             const tween = new TWEEN.Tween(firstShip);
             tween.to({y: this.port.entranceCenter}, 1000).onComplete(() => {
                 this.moveShipToPort(firstShip, shipStation, true);
+
             }).start()
 
             this.setShipTween(firstShip, tween);
@@ -308,21 +310,16 @@ export class ShipController {
             if (this.isCollectorShip(firstShip)) {
                 this.store.dispatch(removeToCollectorShipsQueueAction(firstShip), { dispatchEvent: false })
                 this.scene.collectorsShipQueueRect.x -= config.ship.width + this.scene.queueOffsetBetweenShips;
-                for (let i = 0; i < this.collectorShipsQueue.length; i++) {
-                    const shipInQueue = this.collectorShipsQueue[i];
-                    const tween = new TWEEN.Tween(shipInQueue);
-                    tween.to({x: shipInQueue.x - config.ship.width - this.scene.queueOffsetBetweenShips}, 1000).start();
-                    this.setShipTween(shipInQueue, tween);
-                }
             } else {
                 this.store.dispatch(removeToLoadedShipsQueueAction(firstShip), { dispatchEvent: false })
                 this.scene.loadedShipQueueRect.x -= config.ship.width + this.scene.queueOffsetBetweenShips;
-                for (let i = 0; i < this.loadedShipsQueue.length; i++) {
-                    const shipInQueue = this.loadedShipsQueue[i];
-                    const tween = new TWEEN.Tween(shipInQueue);
-                    tween.to({x: shipInQueue.x - config.ship.width - this.scene.queueOffsetBetweenShips}, 1000).start();
-                    this.setShipTween(shipInQueue, tween);
-                }
+            }
+
+            const queue = this.isCollectorShip(firstShip) ? this.collectorShipsQueue: this.loadedShipsQueue;
+            for (const s of queue) {
+                const tween = new TWEEN.Tween(s);
+                tween.to({ x: s.x - config.ship.width - this.scene.queueOffsetBetweenShips}, 1000).start();
+                this.setShipTween(s, tween);
             }
 
             return true;
