@@ -6,6 +6,10 @@ export function generateShipAction(ship: AbstractShip): IAction<ERootActions, Ab
     return { type: ERootActions.generateShip, payload: ship };
 }
 
+export function removeFromGeneratedQueueAction(ship: AbstractShip): IAction<ERootActions, AbstractShip> {
+    return { type: ERootActions.removeFromGeneratedQueue, payload: ship };
+}
+
 export function moveToCollectorShipsQueueAction(ship: AbstractShip): IAction<ERootActions, AbstractShip> {
     return { type: ERootActions.moveToCollectorShipsQueue, payload: ship };
 }
@@ -20,6 +24,14 @@ export function moveToLoadedShipsQueueAction(ship: AbstractShip): IAction<ERootA
 
 export function removeToLoadedShipsQueueAction(ship: AbstractShip): IAction<ERootActions, AbstractShip> {
     return { type: ERootActions.removeFromLoadedShipsQueue, payload: ship };
+}
+
+export function moveShipToAllShipsQueueAction(ship: AbstractShip): IAction<ERootActions, AbstractShip> {
+    return { type: ERootActions.moveShipToAllShipsQueue, payload: ship };
+}
+
+export function removeShipFromAllShipsQueueAction(ship: AbstractShip): IAction<ERootActions, AbstractShip> {
+    return { type: ERootActions.removeShipFromAllShipsQueue, payload: ship };
 }
 
 export function moveShipToPortAction(ship: AbstractShip): IAction<ERootActions, AbstractShip> {

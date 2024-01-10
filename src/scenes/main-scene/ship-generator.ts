@@ -37,7 +37,8 @@ export class ShipGenerator {
                return new LoadedShipObject({
                    name: 'loaded-ship',
                    scene: this.scene,
-                   rect
+                   rect,
+                   store: this.store
                })
             }
 
@@ -45,7 +46,8 @@ export class ShipGenerator {
                 return new CollectorShipObject({
                     name: 'collector-ship',
                     scene: this.scene,
-                    rect
+                    rect,
+                    store: this.store
                 })
             }
         }

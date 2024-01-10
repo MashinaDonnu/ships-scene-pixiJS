@@ -6,9 +6,13 @@ import {LoadedShipObject} from "scenes/main-scene/objects/loaded-ship/loaded-shi
 import * as TWEEN from "@tweenjs/tween.js";
 import {config} from "common/config";
 import {
+    moveShipToAllShipsQueueAction,
     moveShipToPortAction,
     moveToCollectorShipsQueueAction,
-    moveToLoadedShipsQueueAction, removeToCollectorShipsQueueAction, removeToLoadedShipsQueueAction
+    moveToLoadedShipsQueueAction,
+    removeShipFromAllShipsQueueAction,
+    removeToCollectorShipsQueueAction,
+    removeToLoadedShipsQueueAction
 } from "store/root/root-action-creators";
 import {PortStationObject} from "scenes/main-scene/objects/port/port-station/port-station.object";
 import {PortObject} from "scenes/main-scene/objects/port/port.object";
@@ -23,8 +27,8 @@ export class ShipController {
     generatedShipsQueue: AbstractShip[] = [];
     collectorShipsQueue: CollectorShipObject[] = [];
     loadedShipsQueue: LoadedShipObject[] = [];
-    private _tweenMap = new Map<AbstractShip, Set<TWEEN.Tween<AbstractShip>>>()
     allShipsQueue: AbstractShip[] = [];
+    private _tweenMap = new Map<AbstractShip, Set<TWEEN.Tween<AbstractShip>>>()
     shipStateController = new ShipStateController(this);
 
     constructor(private scene: MainScene) {
@@ -35,15 +39,16 @@ export class ShipController {
 
     init(): void {
         this.store.subscribe((state, action) => {
-            const { generatedShipsQueue, collectorShipsQueue, loadedShipsQueue } = state;
+            const { generatedShipsQueue, collectorShipsQueue, loadedShipsQueue, allShipsQueue } = state;
             this.generatedShipsQueue = generatedShipsQueue;
             this.collectorShipsQueue = generatedShipsQueue;
             this.loadedShipsQueue = loadedShipsQueue;
+            this.allShipsQueue = allShipsQueue;
 
             if (action.type === ERootActions.generateShip) {
                 console.log('generatedShipsQueue')
                 this.startGeneratedShips(action.payload as AbstractShip)
-                this.store.dispatch(moveToCollectorShipsQueueAction(action.payload as AbstractShip), { dispatchEvent: false })
+                // this.store.dispatch(moveToCollectorShipsQueueAction(action.payload as AbstractShip), { dispatchEvent: false })
                 // for (const generatedShip of generatedShipsQueue) {
                 //     this.startGeneratedShips(generatedShip);
                 //
@@ -70,9 +75,7 @@ export class ShipController {
             return;
         }
 
-        console.log('CHECK')
-
-        this.checkShipsQueue()
+        this.checkShipsQueue();
 
         const shipStation = this.getShipStation(ship);
 
@@ -215,10 +218,7 @@ export class ShipController {
         const goFromPort = new TWEEN.Tween(ship);
         goFromPort.to({ x: config.width }, 5000).onStart(() => () => {
             this.shipStateController.setShipState(ship, 'isMovingFromPort')
-            setTimeout(() => {
-                this.generatedShipsQueue = this.generatedShipsQueue.filter((s) => s !== ship)
-            }, 5000)
-        });
+        }).onComplete(() => ship.destroy());
 
         if (isMoveToTop) {
             tween.chain(rotateRight)
@@ -270,8 +270,7 @@ export class ShipController {
         const tween = new TWEEN.Tween(ship);
         tween.to(toRect, 5000).onComplete(() => this.shipStateController.setShipState(ship, 'isInQueue')).start();
 
-        this.allShipsQueue.push(ship);
-        console.log('PUSH', this.allShipsQueue.length)
+        this.store.dispatch(moveShipToAllShipsQueueAction(ship))
         ship.isInQueue = true;
         this.setShipTween(ship, tween)
     }
@@ -295,7 +294,7 @@ export class ShipController {
                 return false;
             }
 
-            this.allShipsQueue.shift();
+            this.store.dispatch(removeShipFromAllShipsQueueAction(firstShip));
 
             this.shipStateController.setShipState(firstShip, 'isMovingToPort')
             shipStation.reserved = true;

@@ -9,5 +9,6 @@ export const rootState = {
     generatedShipsQueue: <AbstractShip[]>[],
     collectorShipsQueue: <CollectorShipObject[]>[],
     loadedShipsQueue: <LoadedShipObject[]>[],
+    allShipsQueue: <AbstractShip[]>[],
     shipsInPort: <AbstractShip[]>[]
 }

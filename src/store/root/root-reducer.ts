@@ -12,12 +12,16 @@ export function rootReducer(state: TRootState, action: IAction<ERootActions, any
             return { ...state, generatedShipsQueue: [...state.generatedShipsQueue, action.payload] }
         }
 
+        case ERootActions.removeFromGeneratedQueue: {
+            return { ...state, generatedShipsQueue: state.generatedShipsQueue.filter(s => s !== action.payload)  }
+        }
+
         case ERootActions.moveToCollectorShipsQueue: {
             return { ...state, collectorShipsQueue: [...state.collectorShipsQueue, action.payload] }
         }
 
         case ERootActions.removeFromCollectorShipsQueue: {
-            return { ...state, collectorShipsQueue: state.collectorShipsQueue.slice(1) }
+            return { ...state, collectorShipsQueue: state.collectorShipsQueue.filter(s => s !== action.payload) }
         }
 
         case ERootActions.moveToLoadedShipsQueue: {
@@ -25,7 +29,15 @@ export function rootReducer(state: TRootState, action: IAction<ERootActions, any
         }
 
         case ERootActions.removeFromLoadedShipsQueue: {
-            return { ...state, loadedShipsQueue: state.loadedShipsQueue.slice(1) }
+            return { ...state, loadedShipsQueue: state.loadedShipsQueue.filter(s => s !== action.payload) }
+        }
+
+        case ERootActions.moveShipToAllShipsQueue: {
+            return { ...state, allShipsQueue: [...state.allShipsQueue, action.payload] }
+        }
+
+        case ERootActions.removeShipFromAllShipsQueue: {
+            return { ...state, allShipsQueue: state.allShipsQueue.filter(s => s !== action.payload) }
         }
 
         case ERootActions.moveShipToPort: {
