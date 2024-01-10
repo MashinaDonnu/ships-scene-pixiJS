@@ -7,9 +7,13 @@ import * as TWEEN from "@tweenjs/tween.js";
 import {config} from "common/config";
 import {moveShipToPortAction, moveToCollectorShipsQueueAction} from "store/root/root-action-creators";
 import {PortStationObject} from "scenes/main-scene/objects/port/port-station/port-station.object";
+import {PortObject} from "scenes/main-scene/objects/port/port.object";
+import {Application} from "pixi.js";
 
 export class ShipController {
-    store: AppStore
+    store: AppStore;
+    port: PortObject;
+    pixiApp: Application;
     generatedShipsQueue: AbstractShip[] = [];
     collectorShipsQueue: CollectorShipObject[] = [];
     loadedShipsQueue: LoadedShipObject[] = [];
@@ -17,6 +21,8 @@ export class ShipController {
 
     constructor(private scene: MainScene) {
         this.store = scene.app.store;
+        this.port = scene.port;
+        this.pixiApp = scene.app.pixiApp;
     }
 
     init(): void {
@@ -30,28 +36,29 @@ export class ShipController {
             for (const generatedShip of generatedShipsQueue) {
                 this.startGeneratedShips(generatedShip);
 
-                if (this.scene.port.isAllPiersOccupied) {
+                if (this.port.isAllStationsOccupied) {
                     this.store.dispatch(moveToCollectorShipsQueueAction(generatedShip), { dispatchEvent: false });
                 }
             }
         });
 
-        this.scene.app.pixiApp.ticker.add(() => {
+        this.pixiApp.ticker.add(() => {
             for (const [ship, tween] of this._tweenMap) {
                 for (const item of tween) {
                     item.update()
                 }
             }
-        })
+        });
     }
 
     startGeneratedShips(ship: AbstractShip): void {
         if (this._tweenMap.has(ship)) {
             return;
         }
-        const toRect = { x: (this.scene.port.width - this.scene.port.entranceRect.width) - config.ship.width + 10, y: ship.position.y }
-        console.log('toRect', toRect)
-        if (this.scene.port.isAllPiersOccupied) {
+        const shipIsEnteredToPortX = (this.port.width - this.scene.port.entranceRect.width) - config.ship.width + 10
+        const toRect = { x: shipIsEnteredToPortX, y: this.port.entranceCenter }
+
+        if (this.scene.port.isAllStationsOccupied) {
             toRect.x = this.scene.loadedShipQueueRect.x;
             toRect.y = this.scene.loadedShipQueueRect.y;
 
@@ -67,8 +74,7 @@ export class ShipController {
                 this.store.dispatch(moveShipToPortAction(ship), { dispatchEvent: false });
                 this.directShipToStation(ship);
             }
-        })
-            .start()
+        }).start()
 
         this.setShipTween(ship, tween);
     }
@@ -82,7 +88,7 @@ export class ShipController {
     }
 
     directShipToStation(ship: AbstractShip) {
-        if (ship instanceof CollectorShipObject) {
+        if (this.isCollectorShip(ship)) {
             this.moveToLoadedStation(ship);
         } else {
             this.moveToFreeStation(ship);
@@ -92,6 +98,7 @@ export class ShipController {
     moveToLoadedStation(ship: AbstractShip): void {
         const loadedStation = this.findLoadedStation();
         if (loadedStation) {
+            loadedStation.isFilled = false
             this.moveToStation(ship, loadedStation)
         }
     }
@@ -99,33 +106,26 @@ export class ShipController {
     moveToFreeStation(ship: AbstractShip): void {
         const freeStation = this.findFreePortStation();
         if (freeStation) {
+            freeStation.isFilled = true
             this.moveToStation(ship, freeStation)
         }
     }
 
     moveToStation(ship: AbstractShip, station: PortStationObject): void {
 
-            if (ship instanceof CollectorShipObject) {
-                station.isFilled = false;
-            } else {
-                station.isFilled = true;
-            }
-
-            const portCenterX = config.height / 2;
-            const stationCenterX = station.rect.y + station.height / 2;
-
+            const isMoveToTop = station.centerX < this.port.entranceCenter
             const tween = new TWEEN.Tween(ship);
-            tween.to({rotation: ( stationCenterX < portCenterX ? Math.PI / 2 : -(Math.PI / 2))}, 2000)
+            tween.to({ rotation: (isMoveToTop ? Math.PI / 2 : -(Math.PI / 2)) }, 2000)
 
             const moveToFreeStation = new TWEEN.Tween(ship)
-            moveToFreeStation.to({ y: station.rect.y + station.rect.height / 2 }, station.distance);
+            moveToFreeStation.to({ y: station.centerY }, station.distance);
 
             const rotateLeft = new TWEEN.Tween(ship);
             rotateLeft.to({ rotation: 0 }, 2000)
 
             const moveToStation = new TWEEN.Tween(ship);
             moveToStation.to({x: station.rect.width + config.ship.width / 2}, 2000).onComplete(() => {
-                if (ship instanceof CollectorShipObject) {
+                if (this.isCollectorShip(ship)) {
                     station.fill()
                 }
 
@@ -133,7 +133,7 @@ export class ShipController {
             })
 
 
-            if (stationCenterX < portCenterX) {
+            if (isMoveToTop) {
                 tween.chain(moveToFreeStation)
                 moveToFreeStation.chain(rotateLeft)
                 rotateLeft.chain(moveToStation)
@@ -146,7 +146,7 @@ export class ShipController {
 
 
             tween.start()
-            // moveToFreeStation.start()
+
             this.setShipTween(ship, tween)
             this.setShipTween(ship, moveToFreeStation)
             this.setShipTween(ship, rotateLeft)
@@ -170,27 +170,28 @@ export class ShipController {
 
     moveShipFromPort(ship: AbstractShip, station: PortStationObject): void {
         this.clearTween(ship);
-        const portCenterX = config.height / 2;
-        const stationCenterX = station.rect.y + station.height / 2;
+
+        const isMoveToTop = station.centerX < this.port.entranceCenter;
 
         const tween = new TWEEN.Tween(ship);
-        tween.to({ x: (this.scene.port.width - this.scene.port.entranceRect.width) - config.ship.width + 10 }, 2000);
+        const moveShipFromStation = (this.port.width - this.port.entranceRect.width) - config.ship.width + 10
+        tween.to({ x:  moveShipFromStation}, 2000);
 
         const rotateRight = new TWEEN.Tween(ship);
-        rotateRight.to({ rotation:  stationCenterX < portCenterX ? Math.PI / 2 : 0 }, 2000)
+        rotateRight.to({ rotation: isMoveToTop  ? Math.PI / 2 : 0 }, 2000)
 
         const moveToEntrance = new TWEEN.Tween(ship);
         moveToEntrance.to({
-            y: stationCenterX < portCenterX ? this.scene.shipGenerator.getPortEntranceY() - config.ship.width / 1.5 : this.scene.shipGenerator.getPortEntranceY() + config.ship.width
+            y: isMoveToTop ? this.port.entranceCenter - config.ship.width / 1.5 : this.port.entranceCenter + config.ship.width
         }, 2000)
 
         const rotateLeft = new TWEEN.Tween(ship);
-        rotateLeft.to({ rotation: stationCenterX < portCenterX ? 0 : -(Math.PI / 2) }, 2000)
+        rotateLeft.to({ rotation: isMoveToTop ? 0 : -(Math.PI / 2) }, 2000)
 
         const goFromPort = new TWEEN.Tween(ship);
         goFromPort.to({ x: config.width }, 5000)
 
-        if (stationCenterX < portCenterX) {
+        if (isMoveToTop) {
             tween.chain(rotateRight)
             rotateRight.chain(moveToEntrance)
             moveToEntrance.chain(rotateLeft)
@@ -200,10 +201,6 @@ export class ShipController {
             rotateLeft.chain(moveToEntrance)
             moveToEntrance.chain(rotateRight)
             rotateRight.chain(goFromPort)
-            // rotateRight
-            //     .chain(moveToEntrance)
-            // moveToEntrance.chain(rotateRight)
-            // rotateLeft.chain(goFromPort)
         }
 
         tween.start();
@@ -235,5 +232,9 @@ export class ShipController {
 
     clearTween(ship: AbstractShip): void {
         this._tweenMap.get(ship).clear();
+    }
+
+    isCollectorShip(ship: AbstractShip): boolean {
+        return ship instanceof CollectorShipObject;
     }
 }

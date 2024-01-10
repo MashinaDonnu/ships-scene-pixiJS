@@ -13,12 +13,17 @@ export class PortStationObject extends AbstractObject {
     rect: IRect;
     isFilled = false
     distance = 0
+    centerX: number;
+    centerY: number;
 
     constructor(params: IPortStationObjectParams) {
         super(params);
         this.rect = params.rect;
         const { x, y, width, height } = params.rect;
+        this.centerY  = y + height / 2;
+        this.centerX  = this.centerY + width;
         this.toEmpty();
+
     }
 
     fill(): void {

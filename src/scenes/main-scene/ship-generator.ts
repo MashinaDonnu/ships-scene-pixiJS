@@ -18,20 +18,14 @@ export class ShipGenerator {
     }
 
     generate(): void {
-        const offsetY = this.getPortEntranceY();
         const ship = this.getRandomShip({
             x: config.width,
-            y: offsetY,
+            y: this.port.entranceCenter,
         });
 
         this.scene.addChild(ship);
         this.store.dispatch(generateShipAction(ship))
 
-    }
-
-    getPortEntranceY(): number {
-        const { x, y, width, height } = this.port.entranceRect;
-        return (y + (height / 2)) - (config.ship.height / 2)
     }
 
     getRandomShip(rect: IRect): AbstractShip {

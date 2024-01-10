@@ -14,8 +14,9 @@ export class PortObject extends AbstractObject {
     entranceWidthPercent = 7;
     entranceOffsetTopPercent = 33.33;
     entranceRect: IRect = { x: 0, y: 0, width: 0, height: 0};
-    isAllPiersOccupied = false;
+    isAllStationsOccupied = false;
     entrance: Graphics;
+    entranceCenter: number
 
     private _stationCount = 4;
     stations: PortStationObject[] = []
@@ -25,6 +26,7 @@ export class PortObject extends AbstractObject {
         this.width = this.portWidth;
         this.generateEntrance();
         this.generateStations();
+        this.entranceCenter = this.getPortEntranceY();
 
     }
 
@@ -113,5 +115,10 @@ export class PortObject extends AbstractObject {
         console.log('stations', this.stations.map(s => s.distance))
 
         this.addChild(stationsContainer);
+    }
+
+    getPortEntranceY(): number {
+        const { x, y, width, height } = this.entranceRect;
+        return (y + (height / 2)) - (config.ship.height / 2)
     }
 }
