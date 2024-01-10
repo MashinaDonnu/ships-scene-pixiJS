@@ -11,8 +11,9 @@ export class PortStationObject extends AbstractObject {
 
     private _stationView: Graphics;
     rect: IRect;
-    isFilled = false
-    distance = 0
+    isFilled = false;
+    reserved = false;
+    distance = 0;
     centerX: number;
     centerY: number;
 

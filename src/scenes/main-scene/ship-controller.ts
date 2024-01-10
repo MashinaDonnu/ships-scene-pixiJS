@@ -58,6 +58,18 @@ export class ShipController {
         const shipIsEnteredToPortX = (this.port.width - this.scene.port.entranceRect.width) - config.ship.width + 10
         const toRect = { x: shipIsEnteredToPortX, y: this.port.entranceCenter }
 
+        let shipStation: PortStationObject;
+
+        if (this.isCollectorShip(ship)) {
+            shipStation = this.findLoadedStation();
+        } else {
+            shipStation = this.findFreePortStation();
+        }
+
+        if (!shipStation) {
+            return;
+        }
+
         if (this.scene.port.isAllStationsOccupied) {
             toRect.x = this.scene.loadedShipQueueRect.x;
             toRect.y = this.scene.loadedShipQueueRect.y;
@@ -68,7 +80,11 @@ export class ShipController {
         }
 
         const tween = new TWEEN.Tween(ship);
-        tween.to(toRect, 5000).onComplete(() => {
+        tween.to(toRect, 5000)
+            .onStart(() => {
+
+            })
+            .onComplete(() => {
             if (!ship.isInPort) {
                 ship.isInPort = true;
                 this.store.dispatch(moveShipToPortAction(ship), { dispatchEvent: false });
