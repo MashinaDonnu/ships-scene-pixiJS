@@ -9,6 +9,7 @@ import {moveShipToPortAction, moveToCollectorShipsQueueAction} from "store/root/
 import {PortStationObject} from "scenes/main-scene/objects/port/port-station/port-station.object";
 import {PortObject} from "scenes/main-scene/objects/port/port.object";
 import {Application} from "pixi.js";
+import {Nullable} from "common/types/nullable.type";
 
 export class ShipController {
     store: AppStore;
@@ -58,36 +59,53 @@ export class ShipController {
         const shipIsEnteredToPortX = (this.port.width - this.scene.port.entranceRect.width) - config.ship.width + 10
         const toRect = { x: shipIsEnteredToPortX, y: this.port.entranceCenter }
 
-        if (this.scene.port.isAllStationsOccupied) {
-            toRect.x = this.scene.loadedShipQueueRect.x;
-            toRect.y = this.scene.loadedShipQueueRect.y;
+        let shipStation: PortStationObject;
 
-            if (!this._tweenMap.has(ship)) {
-                this.scene.loadedShipQueueRect.x += config.ship.width + this.scene.queueOffsetBetweenShips;
+        if (this.isCollectorShip(ship)) {
+            const station = this.findLoadedStation();
+            if (station) {
+                station.reserved = true;
+                shipStation = station
+            }
+
+        } else {
+            const station = this.findFreePortStation();
+            if (station) {
+                station.reserved = true;
+                shipStation = station
             }
         }
 
+        if (this.isMoveToQueue(ship, shipStation)) {
+           return;
+        }
+
         const tween = new TWEEN.Tween(ship);
-        tween.to(toRect, 5000).onComplete(() => {
+        tween.to(toRect, 5000).onStart(() => {
+
+        }).onComplete(() => {
             if (!ship.isInPort) {
                 ship.isInPort = true;
                 this.store.dispatch(moveShipToPortAction(ship), { dispatchEvent: false });
-                this.directShipToStation(ship);
+                // this.directShipToStation(ship);
+                if (shipStation) {
+                    this.moveToStation(ship, shipStation)
+                }
             }
         }).start()
 
         this.setShipTween(ship, tween);
     }
 
-    findFreePortStation(): PortStationObject {
-        return this.scene.port.stations.find(s => !s.isFilled)
+    findFreePortStation(): Nullable<PortStationObject> {
+        return this.port.stations.find(s => !s.isFilled && !s.reserved)
     }
 
-    findLoadedStation(): PortStationObject {
-        return this.scene.port.stations.find(s => s.isFilled)
+    findLoadedStation(): Nullable<PortStationObject> {
+        return this.port.stations.find(s => s.isFilled && !s.reserved)
     }
 
-    directShipToStation(ship: AbstractShip) {
+    directShipToStation(ship: AbstractShip, shipStation: PortStationObject) {
         if (this.isCollectorShip(ship)) {
             this.moveToLoadedStation(ship);
         } else {
@@ -189,7 +207,11 @@ export class ShipController {
         rotateLeft.to({ rotation: isMoveToTop ? 0 : -(Math.PI / 2) }, 2000)
 
         const goFromPort = new TWEEN.Tween(ship);
-        goFromPort.to({ x: config.width }, 5000)
+        goFromPort.to({ x: config.width }, 5000).onStart(() => {
+            setTimeout(() => {
+                station.reserved = false;
+            }, 2000)
+        })
 
         if (isMoveToTop) {
             tween.chain(rotateRight)
@@ -213,8 +235,44 @@ export class ShipController {
         this.setShipTween(ship, goFromPort)
     }
 
-    moveShipToQueue(ship: AbstractShip) {
+    isMoveToQueue(ship: AbstractShip, station: PortStationObject): boolean {
 
+        if (this.port.isAllStationsOccupied) {
+            this.moveShipToQueue(ship)
+            return true;
+        }
+
+        if (!station) {
+            this.moveShipToQueue(ship)
+            return true;
+        }
+
+        return false;
+    }
+
+    moveShipToQueue(ship: AbstractShip): void {
+        const toRect = { x: ship.x, y: ship.y };
+
+        if (this.isCollectorShip(ship)) {
+            toRect.x = this.scene.collectorsShipQueueRect.x;
+            toRect.y = this.scene.collectorsShipQueueRect.y;
+
+            if (!this._tweenMap.has(ship)) {
+                this.scene.collectorsShipQueueRect.x += config.ship.width + this.scene.queueOffsetBetweenShips;
+            }
+        } else {
+            toRect.x = this.scene.loadedShipQueueRect.x;
+            toRect.y = this.scene.loadedShipQueueRect.y;
+
+            if (!this._tweenMap.has(ship)) {
+                this.scene.loadedShipQueueRect.x += config.ship.width + this.scene.queueOffsetBetweenShips;
+            }
+        }
+
+        const tween = new TWEEN.Tween(ship);
+        tween.to(toRect, 5000).start();
+
+        this.setShipTween(ship, tween)
     }
 
     setShipTween(ship: AbstractShip, tween: TWEEN.Tween<AbstractShip>): void {

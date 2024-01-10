@@ -4,21 +4,26 @@ import {Container, Graphics} from "pixi.js";
 import {config} from "common/config";
 import {PortStationObject} from "scenes/main-scene/objects/port/port-station/port-station.object";
 import {IRect} from "common/interfaces/rect.interface";
-import {AbstractShip} from "scenes/main-scene/objects/abstract.ship";
 
 export interface IPortObjectParams extends IAbstractObjectParams {}
 
 export class PortObject extends AbstractObject {
     portWidth = getPercentValue(40, config.width);
-    entranceHeightPercent = 33.33;
+    entranceHeightPercent = 50;
     entranceWidthPercent = 7;
-    entranceOffsetTopPercent = 33.33;
+    entranceOffsetTopPercent = 25;
     entranceRect: IRect = { x: 0, y: 0, width: 0, height: 0};
-    isAllStationsOccupied = false;
     entrance: Graphics;
     entranceCenter: number
 
-    private _stationCount = 4;
+    isAllStationsOccupied = false;
+    isTopShipDirection: boolean | null = null;
+    isShipWillEnter = false;
+    isShipWillLeave = false;
+
+    shipsCount = 0;
+
+    stationsCount = 4;
     stations: PortStationObject[] = []
 
     constructor(private params: IPortObjectParams) {
@@ -78,11 +83,11 @@ export class PortObject extends AbstractObject {
     generateStations() {
         const stationsContainer = new Container();
         const stationWidth = getPercentValue(15, this.portWidth);
-        const stationHeight = getPercentValue(20, config.height);
+        const stationHeight = getPercentValue(23, config.height);
         const portCenterX = config.height / 2;
-        const center = Math.floor(this._stationCount / 2);
+        const center = Math.floor(this.stationsCount / 2);
 
-        for (let i = 0; i < this._stationCount; i++) {
+        for (let i = 0; i < this.stationsCount; i++) {
 
             const station = new PortStationObject({
                 name: 'port-station' + i,
@@ -121,4 +126,5 @@ export class PortObject extends AbstractObject {
         const { x, y, width, height } = this.entranceRect;
         return (y + (height / 2)) - (config.ship.height / 2)
     }
+
 }

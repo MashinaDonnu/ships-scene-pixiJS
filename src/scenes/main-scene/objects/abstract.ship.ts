@@ -11,6 +11,9 @@ export interface IAbstractShipParams extends IAbstractObjectParams {
 export abstract class AbstractShip extends AbstractObject {
     isFilled = false;
     isInPort = false;
+    isMoveToPort = false;
+    isMoveToStation = false;
+    isMoveFromPort = false;
     shipWidth = config.ship.width;
     shipHeight = config.ship.height;
     color = '#000'

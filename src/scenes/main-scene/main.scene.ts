@@ -4,7 +4,7 @@ import {PortObject} from "scenes/main-scene/objects/port/port.object";
 import {config} from "common/config";
 import {ERootActions} from "store/root/root-actions.enum";
 import {ShipGenerator} from "scenes/main-scene/ship-generator";
-import {ShipController} from "scenes/main-scene/ship-controller";
+import {ShipController} from "scenes/main-scene/ship-controller/ship-controller";
 import {IRect} from "common/interfaces/rect.interface";
 
 export interface IMainSceneParams extends IAbstractSceneParams {}
@@ -25,13 +25,13 @@ export class MainScene extends AbstractScene {
             .addChild(this.port)
 
         this.collectorsShipQueueRect = {
-            x: this.port.width + this.queueOffsetBetweenShips,
-            y: this.port.entranceRect.y - config.ship.height,
+            x: this.port.portWidth + config.ship.width / 2 + this.queueOffsetBetweenShips,
+            y: this.port.entranceRect.y,
             width: 0
         }
 
         this.loadedShipQueueRect = {
-            x: this.port.width + this.queueOffsetBetweenShips,
+            x: this.port.portWidth + config.ship.width / 2 + this.queueOffsetBetweenShips,
             y: this.port.entranceRect.y + this.port.entranceRect.height,
             width: 0
         }
