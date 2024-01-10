@@ -8,14 +8,14 @@ export interface IPortStationObjectParams extends IAbstractObjectParams {
 }
 
 export class PortStationObject extends AbstractObject {
-
-    private _stationView: Graphics;
     rect: IRect;
     isFilled = false;
     reserved = false;
     distance = 0;
     centerX: number;
     centerY: number;
+
+    private _stationView: Graphics;
 
     constructor(params: IPortStationObjectParams) {
         super(params);
@@ -24,7 +24,6 @@ export class PortStationObject extends AbstractObject {
         this.centerY  = y + height / 2;
         this.centerX  = this.centerY + width;
         this.toEmpty();
-
     }
 
     fill(): void {
@@ -39,7 +38,6 @@ export class PortStationObject extends AbstractObject {
     }
 
     toEmpty(): void {
-        console.log('toEmpty')
         const { x, y, width, height } = this.rect;
         this.removeChild(this._stationView);
         this._stationView = new Graphics();

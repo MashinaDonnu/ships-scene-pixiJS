@@ -11,9 +11,6 @@ export class SeeObject extends AbstractObject {
         see.beginFill('#1c85bd', 1);
         see.drawRect(0, 0, config.width, config.height);
         see.endFill();
-
         this.addChild(see)
-
-        // this.addChild(collectorShip)
     }
 }

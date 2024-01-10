@@ -37,11 +37,12 @@ export class MainScene extends AbstractScene {
         }
 
         const store = this.app.store;
-
-
         store.dispatch({type: ERootActions.test})
 
+        this.start();
+    }
 
+    start(): void {
         const shipGenerator = new ShipGenerator(this);
         this.shipGenerator = shipGenerator;
         const shipController = new ShipController(this);
@@ -52,26 +53,6 @@ export class MainScene extends AbstractScene {
             shipGenerator.generate();
         }, 5000)
 
-        // setTimeout(() => {
-        //     shipGenerator.generate();
-        // }, 10000)
         shipGenerator.generate();
-        // const ship = shipGenerator.generate();
-        // this.addChild(ship)
-        //
-        //
-        //
-        // const coords = { x: config.width, y: ship.position.y };
-        // const tween = new Tween(coords)
-        // tween.to({ x: this.port.width, y: ship.position.y }, 3000).onUpdate(() => {
-        //     console.log('onUpdate')
-        //     ship.position.x = coords.x;
-        //     ship.position.y = coords.y;
-        // })
-        //
-        // params.app.pixiApp.ticker.add(() => {
-        //     tween.update()
-        // })
-
     }
 }

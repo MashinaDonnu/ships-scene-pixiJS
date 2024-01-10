@@ -4,7 +4,6 @@ import {Container, Graphics} from "pixi.js";
 import {config} from "common/config";
 import {PortStationObject} from "scenes/main-scene/objects/port/port-station/port-station.object";
 import {IRect} from "common/interfaces/rect.interface";
-import {AbstractShip} from "scenes/main-scene/objects/abstract.ship";
 
 export interface IPortObjectParams extends IAbstractObjectParams {}
 
@@ -13,15 +12,14 @@ export class PortObject extends AbstractObject {
     entranceHeightPercent = 33.33;
     entranceWidthPercent = 7;
     entranceOffsetTopPercent = 33.33;
-    entranceRect: IRect = { x: 0, y: 0, width: 0, height: 0};
-    isAllStationsOccupied = false;
-    entrance: Graphics;
-    entranceCenter: number
+    entranceCenter: number;
 
+    private _entranceRect: IRect = { x: 0, y: 0, width: 0, height: 0};
+    private _entrance: Graphics;
     private _stationCount = 4;
-    stations: PortStationObject[] = []
+    private _stations: PortStationObject[] = [];
 
-    constructor(private params: IPortObjectParams) {
+    constructor(params: IPortObjectParams) {
         super(params);
         this.width = this.portWidth;
         this.generateEntrance();
@@ -43,7 +41,7 @@ export class PortObject extends AbstractObject {
          this.entranceRect.height = height;
 
          const entrance = new Graphics();
-         this.entrance = entrance;
+         this._entrance = entrance;
          entrance.beginFill('#1c85bd', 1)
          entrance.drawRect(entranceOffset, offsetTop, width, height);
          entrance.endFill();
@@ -76,11 +74,9 @@ export class PortObject extends AbstractObject {
         const stationsContainer = new Container();
         const stationWidth = getPercentValue(15, this.portWidth);
         const stationHeight = getPercentValue(23.5, config.height);
-        const portCenterX = config.height / 2;
         const center = Math.floor(this._stationCount / 2);
 
         for (let i = 0; i < this._stationCount; i++) {
-
             const station = new PortStationObject({
                 name: 'port-station' + i,
                 scene: this.scene,
@@ -90,30 +86,12 @@ export class PortObject extends AbstractObject {
                     width: stationWidth,
                     height: stationHeight
                 }
-            })
+            });
 
-            // if (i % 2 === 0) {
-            //     station.fill()
-            // }
-
-            // station.distance = Math.abs((i - center) * 1000)
             station.distance = Math.abs((i - center + (i >= center ? 1 : 0)) * 1000)
-
             this.stations.push(station)
-
-
             stationsContainer.addChild(station);
         }
-        // this.stations[1].fill()
-
-        setTimeout(() => {
-            // this.stations[1].fill()
-            // this.stations[2].fill()
-        }, 10000)
-
-
-
-        console.log('stations', this.stations.map(s => s.distance))
 
         this.addChild(stationsContainer);
     }
@@ -121,5 +99,17 @@ export class PortObject extends AbstractObject {
     getPortEntranceY(): number {
         const { x, y, width, height } = this.entranceRect;
         return (y + (height / 2)) - (config.ship.height / 2)
+    }
+
+    get stations() {
+        return this._stations;
+    }
+
+    get entranceRect() {
+        return this._entranceRect;
+    }
+
+    get entrance() {
+        return this._entrance;
     }
 }

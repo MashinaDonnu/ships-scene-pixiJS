@@ -39,8 +39,8 @@ export abstract class AbstractShip extends AbstractObject implements IAbstractSh
     color = '#000'
     borderWidth = 3;
     store: AppStore;
-    private _view: Graphics;
 
+    private _view: Graphics;
 
     protected constructor(private params: IAbstractShipParams) {
         super(params);
