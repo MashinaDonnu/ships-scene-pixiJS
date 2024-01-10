@@ -29,16 +29,17 @@ export class ShipGenerator {
     }
 
     getRandomShip(rect: IRect): AbstractShip {
-        const random = Math.floor(Math.random() * 2) + 1;
+        // const random = Math.floor(Math.random() * 2) + 1;
+        const random = 2;
 
         switch (random) {
-            case 1: {
-               return new LoadedShipObject({
-                   name: 'loaded-ship',
-                   scene: this.scene,
-                   rect
-               })
-            }
+            // case 1: {
+            //    return new LoadedShipObject({
+            //        name: 'loaded-ship',
+            //        scene: this.scene,
+            //        rect
+            //    })
+            // }
 
             case 2: {
                 return new CollectorShipObject({

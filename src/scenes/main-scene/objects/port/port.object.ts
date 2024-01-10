@@ -107,8 +107,12 @@ export class PortObject extends AbstractObject {
 
             stationsContainer.addChild(station);
         }
+        // this.stations[1].fill()
 
-        this.stations[1].fill()
+        setTimeout(() => {
+            this.stations[1].fill()
+            this.stations[2].fill()
+        }, 10000)
 
 
 

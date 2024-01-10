@@ -1,6 +1,5 @@
 import {AbstractObject, IAbstractObjectParams} from "common/abstract.object";
-import {Container, Graphics, Sprite} from "pixi.js";
-import {PortObject} from "scenes/main-scene/objects/port/port.object";
+import {Graphics} from "pixi.js";
 import {IRect} from "common/interfaces/rect.interface";
 import {config} from "common/config";
 
@@ -8,9 +7,26 @@ export interface IAbstractShipParams extends IAbstractObjectParams {
     rect: IRect;
 }
 
-export abstract class AbstractShip extends AbstractObject {
-    isFilled = false;
+export interface IAbstractShipStates {
+    isMovingToPort: boolean;
+    isMovingToQueue: boolean;
+    isMovingFromQueue: boolean;
+    isMovingToStation: boolean;
+    isMovingFromStation: boolean;
+    isMovingFromPort: boolean;
+    isInQueue: boolean;
+    isInPort: boolean;
+}
+
+export abstract class AbstractShip extends AbstractObject implements IAbstractShipStates {
     isInPort = false;
+    isMovingToPort = false;
+    isMovingToQueue = false;
+    isMovingFromQueue = false;
+    isMovingToStation = false;
+    isMovingFromStation = false;
+    isMovingFromPort = false;
+    isInQueue = false;
     shipWidth = config.ship.width;
     shipHeight = config.ship.height;
     color = '#000'
@@ -62,5 +78,16 @@ export abstract class AbstractShip extends AbstractObject {
 
     get view() {
         return this._view;
+    }
+
+    resetState() {
+        this.isInPort = false;
+        this.isMovingToPort = false;
+        this.isMovingToQueue = false;
+        this.isMovingFromQueue = false;
+        this.isMovingToStation = false;
+        this.isMovingFromStation = false;
+        this.isMovingFromPort = false;
+        this.isInQueue = false;
     }
 }
