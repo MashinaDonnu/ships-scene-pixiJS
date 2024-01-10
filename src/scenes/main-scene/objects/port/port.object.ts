@@ -44,10 +44,7 @@ export class PortObject extends AbstractObject {
 
          const entrance = new Graphics();
          this.entrance = entrance;
-         // entrance.beginFill('#ccc', 1);
-        // entrance.position.x = this.entranceRect.x;
-        // entrance.position.y = this.entranceRect.y;
-        entrance.beginFill('#1c85bd', 1)
+         entrance.beginFill('#1c85bd', 1)
          entrance.drawRect(entranceOffset, offsetTop, width, height);
          entrance.endFill();
          this.addChild(entrance);
@@ -78,7 +75,7 @@ export class PortObject extends AbstractObject {
     generateStations() {
         const stationsContainer = new Container();
         const stationWidth = getPercentValue(15, this.portWidth);
-        const stationHeight = getPercentValue(20, config.height);
+        const stationHeight = getPercentValue(23.5, config.height);
         const portCenterX = config.height / 2;
         const center = Math.floor(this._stationCount / 2);
 
