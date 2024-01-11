@@ -5,23 +5,18 @@ import {CollectorShipObject} from "scenes/main-scene/objects/collector-ship/coll
 import {LoadedShipObject} from "scenes/main-scene/objects/loaded-ship/loaded-ship.object";
 import * as TWEEN from "@tweenjs/tween.js";
 import {config} from "common/config";
-import {
-    moveShipToAllShipsQueueAction,
-    moveShipToPortAction,
-    moveToCollectorShipsQueueAction,
-    moveToLoadedShipsQueueAction,
-    removeShipFromAllShipsQueueAction,
-    removeToCollectorShipsQueueAction,
-    removeToLoadedShipsQueueAction
-} from "store/root/root-action-creators";
+import {moveShipToPortAction} from "store/root/root-action-creators";
 import {PortStationObject} from "scenes/main-scene/objects/port/port-station/port-station.object";
 import {PortObject} from "scenes/main-scene/objects/port/port.object";
 import {Application} from "pixi.js";
 import {ERootActions} from "store/root/root-actions.enum";
-import {ShipStateController} from "scenes/main-scene/ship-controller/ship-state.controller";
+import {ShipStateManager} from "scenes/main-scene/ship-manager/ship-state.manager";
 import {IAction} from "store/action.interface";
+import {ShipQueueManager} from "scenes/main-scene/ship-manager/ship-queue.manager";
+import {IStoreSubscribe} from "store/store";
+import {TickerCallback} from "@pixi/ticker/lib/Ticker";
 
-export class ShipController {
+export class ShipManager {
     store: AppStore;
     port: PortObject;
     pixiApp: Application;
@@ -29,13 +24,20 @@ export class ShipController {
     collectorShipsQueue: CollectorShipObject[] = [];
     loadedShipsQueue: LoadedShipObject[] = [];
     allShipsQueue: AbstractShip[] = [];
-    private _tweenMap = new Map<AbstractShip, Set<TWEEN.Tween<AbstractShip>>>()
-    shipStateController = new ShipStateController(this);
 
-    constructor(private scene: MainScene) {
+    shipStateManager: ShipStateManager;
+    shipQueueManager: ShipQueueManager;
+
+    private _ticker: TickerCallback<null>;
+    private _tweenMap = new Map<AbstractShip, Set<TWEEN.Tween<AbstractShip>>>()
+    private _storeSubscription: IStoreSubscribe;
+
+    constructor(public scene: MainScene) {
         this.store = scene.app.store;
         this.port = scene.port;
         this.pixiApp = scene.app.pixiApp;
+        this.shipStateManager = new ShipStateManager(this);
+        this.shipQueueManager = new ShipQueueManager(this);
     }
 
     init(): void {
@@ -51,14 +53,17 @@ export class ShipController {
             }
         });
 
-        this.pixiApp.ticker.add(() => {
+        const ticker = () => {
             // TWEEN.update()
             for (const [ship, tween] of this._tweenMap) {
                 for (const item of tween) {
                     item.update()
                 }
             }
-        });
+        }
+
+        this._ticker = ticker;
+        this.pixiApp.ticker.add(ticker);
     }
 
     startShip(ship: AbstractShip): void {
@@ -66,12 +71,12 @@ export class ShipController {
             return;
         }
 
-        this.checkShipsQueue();
+        this.shipQueueManager.checkShipsQueue();
 
         const shipStation = this.getShipStation(ship);
 
         if (!shipStation) {
-            this.moveShipToQueue(ship);
+            this.shipQueueManager.moveShipToQueue(ship);
             return;
         }
 
@@ -85,14 +90,14 @@ export class ShipController {
         const tween = new TWEEN.Tween(ship);
         tween.to(toRect, isFromQueue ? config.time.shipFromQueueToPort : config.time.shipToPort)
             .onStart(() => {
-                this.shipStateController.setShipState(ship, 'isMovingToPort')
+                this.shipStateManager.setShipState(ship, 'isMovingToPort')
                 shipStation.reserved = true;
             })
             .onComplete(() => {
                 if (!ship.isInPort) {
                     ship.isInPort = true;
                     this.store.dispatch(moveShipToPortAction(ship), { dispatchEvent: false });
-                    this.shipStateController.setShipState(ship, 'isMovingToStation')
+                    this.shipStateManager.setShipState(ship, 'isMovingToStation')
                     this.moveToStation(ship, shipStation);
                 }
             }).start()
@@ -164,7 +169,7 @@ export class ShipController {
         }
 
         this.moveShipFromPort(ship, station);
-        this.shipStateController.setShipState(ship, 'isMovingFromStation')
+        this.shipStateManager.setShipState(ship, 'isMovingFromStation')
     }
 
     moveShipFromPort(ship: AbstractShip, station: PortStationObject): void {
@@ -190,7 +195,7 @@ export class ShipController {
 
         const goFromPort = new TWEEN.Tween(ship);
         goFromPort.to({ x: config.width }, config.time.shipFromPort).onStart(() => () => {
-            this.shipStateController.setShipState(ship, 'isMovingFromPort')
+            this.shipStateManager.setShipState(ship, 'isMovingFromPort')
         }).onComplete(() => {
             ship.destroy();
             this._tweenMap.delete(ship);
@@ -215,79 +220,6 @@ export class ShipController {
         this.setShipTween(ship, moveToEntrance)
         this.setShipTween(ship, rotateLeft)
         this.setShipTween(ship, goFromPort)
-    }
-
-
-    moveShipToQueue(ship: AbstractShip): void {
-        const toRect = { x: ship.x, y: ship.y };
-
-        if (this.isCollectorShip(ship)) {
-            toRect.x = this.scene.collectorsShipQueueRect.x;
-            toRect.y = this.scene.collectorsShipQueueRect.y;
-
-            this.store.dispatch(moveToCollectorShipsQueueAction(ship), { dispatchEvent: false })
-        } else {
-            toRect.x = this.scene.loadedShipQueueRect.x;
-            toRect.y = this.scene.loadedShipQueueRect.y;
-
-            this.store.dispatch(moveToLoadedShipsQueueAction(ship), { dispatchEvent: false })
-        }
-
-        this.increaseQueue(ship)
-        this.shipStateController.setShipState(ship, 'isMovingToQueue')
-
-        const tween = new TWEEN.Tween(ship);
-        tween.to(toRect, 5000).onComplete(() => this.shipStateController.setShipState(ship, 'isInQueue')).start();
-
-        this.store.dispatch(moveShipToAllShipsQueueAction(ship))
-        this.setShipTween(ship, tween)
-    }
-
-    checkShipsQueue() {
-        if (!this.allShipsQueue.length) {
-            return;
-        }
-
-        const firstShip = this.allShipsQueue.find((s) => {
-            return !!this.getShipStation(s)
-        })
-
-        if (!firstShip) {
-            return;
-        }
-
-        const shipStation = this.getShipStation(firstShip);
-
-        if (!shipStation) {
-            return;
-        }
-
-        this.store.dispatch(removeShipFromAllShipsQueueAction(firstShip));
-        this.shipStateController.setShipState(firstShip, 'isMovingToPort')
-        shipStation.reserved = true;
-
-        const tween = new TWEEN.Tween(firstShip);
-        tween.to({y: this.port.entranceCenter}, config.time.shipFromQueueToPort).onComplete(() => {
-            this.moveShipToPort(firstShip, shipStation, true);
-        }).start()
-
-        this.setShipTween(firstShip, tween);
-
-        if (this.isCollectorShip(firstShip)) {
-            this.store.dispatch(removeToCollectorShipsQueueAction(firstShip), { dispatchEvent: false })
-        } else {
-            this.store.dispatch(removeToLoadedShipsQueueAction(firstShip), { dispatchEvent: false })
-        }
-
-        this.decreaseQueue(firstShip);
-
-        const queue = this.isCollectorShip(firstShip) ? this.collectorShipsQueue: this.loadedShipsQueue;
-        for (const s of queue) {
-            const tween = new TWEEN.Tween(s);
-            tween.to({ x: s.x - config.ship.width - this.scene.queueOffsetBetweenShips}, config.time.shipMovingInQueue).start();
-            this.setShipTween(s, tween);
-        }
-
     }
 
     setShipTween(ship: AbstractShip, tween: TWEEN.Tween<AbstractShip>): void {
@@ -325,5 +257,10 @@ export class ShipController {
         } else {
             this.scene.loadedShipQueueRect.x -= config.ship.width + this.scene.queueOffsetBetweenShips;
         }
+    }
+
+    destroy(): void {
+        this._storeSubscription?.unsubscribe();
+        this.pixiApp.ticker.remove(this._ticker);
     }
 }

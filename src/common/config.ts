@@ -8,7 +8,7 @@ export const config = {
     },
 
     time: {
-        shipGeneration: 8000,
+        shipGeneration: 2000,
         shipToPort: 3000,
         shipFromPort: 3000,
         shipFromQueueToPort: 1000,

@@ -4,7 +4,7 @@ import {PortObject} from "scenes/main-scene/objects/port/port.object";
 import {config} from "common/config";
 import {ERootActions} from "store/root/root-actions.enum";
 import {ShipGenerator} from "scenes/main-scene/ship-generator";
-import {ShipController} from "scenes/main-scene/ship-controller/ship-controller";
+import {ShipManager} from "scenes/main-scene/ship-manager/ship.manager";
 import {IRect} from "common/interfaces/rect.interface";
 
 export interface IMainSceneParams extends IAbstractSceneParams {}
@@ -43,7 +43,7 @@ export class MainScene extends AbstractScene {
     start(): void {
         const shipGenerator = new ShipGenerator(this);
         this.shipGenerator = shipGenerator;
-        const shipController = new ShipController(this);
+        const shipController = new ShipManager(this);
 
         shipController.init();
 

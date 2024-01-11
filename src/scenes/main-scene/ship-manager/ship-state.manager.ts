@@ -1,8 +1,8 @@
 import {AbstractShip, IAbstractShipStates} from "scenes/main-scene/objects/abstract.ship";
-import {ShipController} from "scenes/main-scene/ship-controller/ship-controller";
+import {ShipManager} from "scenes/main-scene/ship-manager/ship.manager";
 
-export class ShipStateController {
-    constructor(private _shipController: ShipController) {}
+export class ShipStateManager {
+    constructor(private _shipController: ShipManager) {}
 
     setShipState(ship: AbstractShip, state: keyof IAbstractShipStates, value: boolean = true): void {
         ship.resetState();
