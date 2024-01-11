@@ -4,7 +4,7 @@ import {PortObject} from "scenes/main-scene/objects/port/port.object";
 import {config} from "common/config";
 import {ERootActions} from "store/root/root-actions.enum";
 import {ShipGenerator} from "scenes/main-scene/ship-generator";
-import {ShipController} from "scenes/main-scene/ship-controller";
+import {ShipController} from "scenes/main-scene/ship-controller/ship-controller";
 import {IRect} from "common/interfaces/rect.interface";
 
 export interface IMainSceneParams extends IAbstractSceneParams {}
@@ -17,6 +17,7 @@ export class MainScene extends AbstractScene {
     loadedShipQueueRect: IRect;
 
     shipGenerator: ShipGenerator;
+    private _intervalId: NodeJS.Timeout;
 
     constructor(params: IMainSceneParams) {
         super(params);
@@ -36,9 +37,6 @@ export class MainScene extends AbstractScene {
             width: 0
         }
 
-        const store = this.app.store;
-        store.dispatch({type: ERootActions.test})
-
         this.start();
     }
 
@@ -49,10 +47,14 @@ export class MainScene extends AbstractScene {
 
         shipController.init();
 
-        setInterval(() => {
+        this._intervalId = setInterval(() => {
             shipGenerator.generate();
-        }, 5000)
+        }, config.time.shipGeneration)
 
         shipGenerator.generate();
+    }
+
+    destroy() {
+        clearInterval(this._intervalId);
     }
 }

@@ -83,7 +83,7 @@ export class ShipController {
         const toRect = { x: shipIsEnteredToPortX, y: this.port.entranceCenter };
 
         const tween = new TWEEN.Tween(ship);
-        tween.to(toRect, isFromQueue ? 1000 : 5000)
+        tween.to(toRect, isFromQueue ? config.time.shipFromQueueToPort : config.time.shipToPort)
             .onStart(() => {
                 this.shipStateController.setShipState(ship, 'isMovingToPort')
                 shipStation.reserved = true;
@@ -122,18 +122,19 @@ export class ShipController {
 
     moveToStation(ship: AbstractShip, station: PortStationObject): void {
 
-            const isMoveToTop = station.centerX < this.port.entranceCenter
+            const isMoveToTop = station.centerX < this.port.entranceCenter;
             const tween = new TWEEN.Tween(ship);
-            tween.to({ rotation: (isMoveToTop ? Math.PI / 2 : -(Math.PI / 2)) }, 2000)
+            tween.to({ rotation: (isMoveToTop ? Math.PI / 2 : -(Math.PI / 2)) }, config.time.shipToStationRotation);
 
             const moveToFreeStation = new TWEEN.Tween(ship)
-            moveToFreeStation.to({ y: station.centerY }, station.distance);
+            // moveToFreeStation.to({ y: station.centerY }, station.distance);
+            moveToFreeStation.to({ y: station.centerY }, config.time.shipToStation);
 
             const rotateLeft = new TWEEN.Tween(ship);
-            rotateLeft.to({ rotation: 0 }, 2000)
+            rotateLeft.to({ rotation: 0 }, config.time.shipToStationRotation)
 
             const moveToStation = new TWEEN.Tween(ship);
-            moveToStation.to({x: station.rect.width + config.ship.width / 2}, 2000).onComplete(() => this.actionWithLoad(ship, station))
+            moveToStation.to({x: station.rect.width + config.ship.width / 2}, config.time.shipToStation).onComplete(() => this.actionWithLoad(ship, station))
 
             if (isMoveToTop) {
                 tween.chain(moveToFreeStation)
@@ -174,21 +175,21 @@ export class ShipController {
         const tween = new TWEEN.Tween(ship);
         const moveShipFromStation = (this.port.width - this.port.entranceRect.width) - config.ship.width + 10
 
-        tween.to({ x:  moveShipFromStation}, 2000).onComplete(() => station.reserved = false);
+        tween.to({ x:  moveShipFromStation}, config.time.shipFromStation).onComplete(() => station.reserved = false);
 
         const rotateRight = new TWEEN.Tween(ship);
-        rotateRight.to({ rotation: isMoveToTop  ? Math.PI / 2 : 0 }, 2000)
+        rotateRight.to({ rotation: isMoveToTop  ? Math.PI / 2 : 0 }, config.time.shipToStationRotation)
 
         const moveToEntrance = new TWEEN.Tween(ship);
         moveToEntrance.to({
             y: isMoveToTop ? this.port.entranceCenter - config.ship.width / 1.5 : this.port.entranceCenter + config.ship.width
-        }, 2000)
+        }, config.time.shipToPortEntrance);
 
         const rotateLeft = new TWEEN.Tween(ship);
-        rotateLeft.to({ rotation: isMoveToTop ? 0 : -(Math.PI / 2) }, 2000)
+        rotateLeft.to({ rotation: isMoveToTop ? 0 : -(Math.PI / 2) }, config.time.shipToStationRotation)
 
         const goFromPort = new TWEEN.Tween(ship);
-        goFromPort.to({ x: config.width }, 5000).onStart(() => () => {
+        goFromPort.to({ x: config.width }, config.time.shipFromPort).onStart(() => () => {
             this.shipStateController.setShipState(ship, 'isMovingFromPort')
         }).onComplete(() => {
             ship.destroy();
@@ -266,7 +267,7 @@ export class ShipController {
         shipStation.reserved = true;
 
         const tween = new TWEEN.Tween(firstShip);
-        tween.to({y: this.port.entranceCenter}, 1000).onComplete(() => {
+        tween.to({y: this.port.entranceCenter}, config.time.shipFromQueueToPort).onComplete(() => {
             this.moveShipToPort(firstShip, shipStation, true);
         }).start()
 
@@ -283,7 +284,7 @@ export class ShipController {
         const queue = this.isCollectorShip(firstShip) ? this.collectorShipsQueue: this.loadedShipsQueue;
         for (const s of queue) {
             const tween = new TWEEN.Tween(s);
-            tween.to({ x: s.x - config.ship.width - this.scene.queueOffsetBetweenShips}, 1000).start();
+            tween.to({ x: s.x - config.ship.width - this.scene.queueOffsetBetweenShips}, config.time.shipMovingInQueue).start();
             this.setShipTween(s, tween);
         }
 

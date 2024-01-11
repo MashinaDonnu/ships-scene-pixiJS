@@ -4,9 +4,6 @@ import {ERootActions} from "store/root/root-actions.enum";
 
 export function rootReducer(state: TRootState, action: IAction<ERootActions, any>): TRootState {
     switch (action.type) {
-        case ERootActions.test: {
-            return { ...state, hello: 'bazzz' }
-        }
 
         case ERootActions.generateShip: {
             return { ...state, generatedShipsQueue: [...state.generatedShipsQueue, action.payload] }

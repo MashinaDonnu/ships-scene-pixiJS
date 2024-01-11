@@ -1,5 +1,4 @@
 export enum ERootActions {
-    test,
     generateShip = 'generateShip',
     removeFromGeneratedQueue = 'removeFromGeneratedQueue',
     moveToCollectorShipsQueue = 'moveToCollectorShipsQueue',

@@ -8,10 +8,10 @@ import {IRect} from "common/interfaces/rect.interface";
 export interface IPortObjectParams extends IAbstractObjectParams {}
 
 export class PortObject extends AbstractObject {
-    portWidth = getPercentValue(40, config.width);
-    entranceHeightPercent = 33.33;
-    entranceWidthPercent = 7;
-    entranceOffsetTopPercent = 33.33;
+    portWidth = getPercentValue(config.port.widthPercentage, config.width);
+    entranceHeightPercentage = config.port.entranceHeightPercentage;
+    entranceWidthPercentage = config.port.entranceWidthPercentage;
+    entranceOffsetTopPercentage = config.port.entranceOffsetTopPercentage;
     entranceCenter: number;
 
     private _entranceRect: IRect = { x: 0, y: 0, width: 0, height: 0};
@@ -29,9 +29,9 @@ export class PortObject extends AbstractObject {
     }
 
     generateEntrance(): void {
-         const width = getPercentValue(this.entranceWidthPercent, this.portWidth);
-         const height= getPercentValue(this.entranceHeightPercent, config.height);
-         const offsetTop = getPercentValue(this.entranceOffsetTopPercent, config.height);
+         const width = getPercentValue(this.entranceWidthPercentage, this.portWidth);
+         const height= getPercentValue(this.entranceHeightPercentage, config.height);
+         const offsetTop = getPercentValue(this.entranceOffsetTopPercentage, config.height);
          const entranceOffset = this.portWidth - width;
 
 
