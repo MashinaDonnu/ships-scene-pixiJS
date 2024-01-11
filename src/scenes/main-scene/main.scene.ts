@@ -2,7 +2,6 @@ import {AbstractScene, IAbstractSceneParams} from "common/abstract.scene";
 import {SeeObject} from "scenes/main-scene/objects/see/see.object";
 import {PortObject} from "scenes/main-scene/objects/port/port.object";
 import {config} from "common/config";
-import {ERootActions} from "store/root/root-actions.enum";
 import {ShipGenerator} from "scenes/main-scene/ship-generator";
 import {ShipManager} from "scenes/main-scene/ship-manager/ship.manager";
 import {IRect} from "common/interfaces/rect.interface";
