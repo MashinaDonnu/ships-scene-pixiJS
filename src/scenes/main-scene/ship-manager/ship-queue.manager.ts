@@ -32,7 +32,7 @@ export class ShipQueueManager {
 
             this.store.dispatch(moveToCollectorShipsQueueAction(ship), { dispatchEvent: false })
         } else {
-            toRect.x = this.scene.loadedShipQueueRect.x +  shipBodyOffset;
+            toRect.x = this.scene.loadedShipQueueRect.x + shipBodyOffset;
             toRect.y = this.scene.loadedShipQueueRect.y;
 
             this.store.dispatch(moveToLoadedShipsQueueAction(ship), { dispatchEvent: false })

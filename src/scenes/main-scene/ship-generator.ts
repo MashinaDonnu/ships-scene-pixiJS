@@ -20,7 +20,7 @@ export class ShipGenerator {
     generate(): void {
         const ship = this.getRandomShip({
             x: config.width,
-            y: this.port.entranceCenter,
+            y: this.port.entranceCenter + config.ship.height / 2,
         });
 
         this.scene.addChild(ship);

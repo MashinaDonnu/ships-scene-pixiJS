@@ -189,14 +189,14 @@ export class ShipManager {
 
         const moveToEntrance = new TWEEN.Tween(ship);
         moveToEntrance.to({
-            y: isMoveToTop ? this.port.entranceCenter - config.ship.width / 1.5 : this.port.entranceCenter + config.ship.width
+            y: isMoveToTop ? this.port.entranceCenter - config.ship.width / 1.5 + 10 : this.port.entranceCenter + config.ship.width - 10
         }, config.time.shipToPortEntrance);
 
         const rotateLeft = new TWEEN.Tween(ship);
         rotateLeft.to({ rotation: isMoveToTop ? 0 : -(Math.PI / 2) }, config.time.shipToStationRotation)
 
         const goFromPort = new TWEEN.Tween(ship);
-        goFromPort.to({ x: config.width }, config.time.shipFromPort).onStart(() => () => {
+        goFromPort.to({ x: config.width + config.ship.width / 2 }, config.time.shipFromPort).onStart(() => () => {
             this.shipStateManager.setShipState(ship, 'isMovingFromPort')
         }).onComplete(() => {
             ship.destroy();
