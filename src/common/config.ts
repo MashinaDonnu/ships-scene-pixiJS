@@ -37,6 +37,6 @@ export const config = {
     station: {
         widthPercentage: 15,
         heightPercentage: 23.5,
-        borderWidth: 10
+        borderWidth: 7
     }
 };
