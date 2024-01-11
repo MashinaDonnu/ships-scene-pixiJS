@@ -37,7 +37,7 @@ export abstract class AbstractShip extends AbstractObject implements IAbstractSh
     shipWidth = config.ship.width;
     shipHeight = config.ship.height;
     color = '#000'
-    borderWidth = 3;
+    borderWidth = config.ship.borderWidth;
     store: AppStore;
 
     private _view: Graphics;

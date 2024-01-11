@@ -26,13 +26,13 @@ export class MainScene extends AbstractScene {
             .addChild(this.port)
 
         this.collectorsShipQueueRect = {
-            x: this.port.width + this.queueOffsetBetweenShips,
-            y: this.port.entranceRect.y - config.ship.height,
+            x: this.port.width + this.queueOffsetBetweenShips + 20,
+            y: this.port.entranceRect.y,
             width: 0
         }
 
         this.loadedShipQueueRect = {
-            x: this.port.width + this.queueOffsetBetweenShips,
+            x: this.port.width + this.queueOffsetBetweenShips + 20,
             y: this.port.entranceRect.y + this.port.entranceRect.height,
             width: 0
         }

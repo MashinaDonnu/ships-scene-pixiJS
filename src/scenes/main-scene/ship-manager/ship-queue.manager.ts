@@ -24,20 +24,21 @@ export class ShipQueueManager {
 
     moveShipToQueue(ship: AbstractShip): void {
         const toRect = { x: ship.x, y: ship.y };
+        const shipBodyOffset = config.ship.width / 2;
 
         if (this._shipManager.isCollectorShip(ship)) {
-            toRect.x = this.scene.collectorsShipQueueRect.x;
+            toRect.x = this.scene.collectorsShipQueueRect.x + shipBodyOffset;
             toRect.y = this.scene.collectorsShipQueueRect.y;
 
             this.store.dispatch(moveToCollectorShipsQueueAction(ship), { dispatchEvent: false })
         } else {
-            toRect.x = this.scene.loadedShipQueueRect.x;
+            toRect.x = this.scene.loadedShipQueueRect.x +  shipBodyOffset;
             toRect.y = this.scene.loadedShipQueueRect.y;
 
             this.store.dispatch(moveToLoadedShipsQueueAction(ship), { dispatchEvent: false })
         }
 
-        this._shipManager.increaseQueue(ship)
+        this.increaseQueue(ship)
         this._shipManager.shipStateManager.setShipState(ship, 'isMovingToQueue')
 
         const tween = new TWEEN.Tween(ship);
@@ -85,7 +86,7 @@ export class ShipQueueManager {
             this.store.dispatch(removeToLoadedShipsQueueAction(firstShip), { dispatchEvent: false })
         }
 
-        this._shipManager.decreaseQueue(firstShip);
+        this.decreaseQueue(firstShip);
 
         const queue = this._shipManager.isCollectorShip(firstShip) ? this._shipManager.collectorShipsQueue: this._shipManager.loadedShipsQueue;
         for (const s of queue) {
@@ -94,5 +95,22 @@ export class ShipQueueManager {
             this._shipManager.setShipTween(s, tween);
         }
 
+
+    }
+
+    increaseQueue(ship: AbstractShip): void {
+        if (this._shipManager.isCollectorShip(ship)) {
+            this.scene.collectorsShipQueueRect.x += config.ship.width + this.scene.queueOffsetBetweenShips;
+        } else {
+            this.scene.loadedShipQueueRect.x += config.ship.width + this.scene.queueOffsetBetweenShips;
+        }
+    }
+
+    decreaseQueue(ship: AbstractShip): void {
+        if (this._shipManager.isCollectorShip(ship)) {
+            this.scene.collectorsShipQueueRect.x -= config.ship.width + this.scene.queueOffsetBetweenShips;
+        } else {
+            this.scene.loadedShipQueueRect.x -= config.ship.width + this.scene.queueOffsetBetweenShips;
+        }
     }
 }

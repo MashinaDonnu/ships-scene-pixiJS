@@ -139,7 +139,9 @@ export class ShipManager {
             rotateLeft.to({ rotation: 0 }, config.time.shipToStationRotation)
 
             const moveToStation = new TWEEN.Tween(ship);
-            moveToStation.to({x: station.rect.width + config.ship.width / 2}, config.time.shipToStation).onComplete(() => this.actionWithLoad(ship, station))
+            moveToStation.to({
+                x: station.rect.width + config.ship.width / 2 + config.station.borderWidth
+            }, config.time.shipToStation).onComplete(() => this.actionWithLoad(ship, station))
 
             if (isMoveToTop) {
                 tween.chain(moveToFreeStation)
@@ -241,22 +243,6 @@ export class ShipManager {
 
     isCollectorShip(ship: AbstractShip): boolean {
         return ship instanceof CollectorShipObject;
-    }
-
-    increaseQueue(ship: AbstractShip): void {
-        if (this.isCollectorShip(ship)) {
-            this.scene.collectorsShipQueueRect.x += config.ship.width + this.scene.queueOffsetBetweenShips;
-        } else {
-            this.scene.loadedShipQueueRect.x += config.ship.width + this.scene.queueOffsetBetweenShips;
-        }
-    }
-
-    decreaseQueue(ship: AbstractShip): void {
-        if (this.isCollectorShip(ship)) {
-            this.scene.collectorsShipQueueRect.x -= config.ship.width + this.scene.queueOffsetBetweenShips;
-        } else {
-            this.scene.loadedShipQueueRect.x -= config.ship.width + this.scene.queueOffsetBetweenShips;
-        }
     }
 
     destroy(): void {

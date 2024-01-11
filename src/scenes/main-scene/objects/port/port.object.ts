@@ -42,7 +42,7 @@ export class PortObject extends AbstractObject {
 
          const entrance = new Graphics();
          this._entrance = entrance;
-         entrance.beginFill('#1c85bd', 1)
+         entrance.beginFill(config.colors.blue, 1)
          entrance.drawRect(entranceOffset, offsetTop, width, height);
          entrance.endFill();
          this.addChild(entrance);
@@ -64,7 +64,7 @@ export class PortObject extends AbstractObject {
     generateObstruction(rect: IRect) {
         const { x, y, width, height } = rect;
         const obstruction = new Graphics();
-        obstruction.beginFill('#fff', 1);
+        obstruction.beginFill(config.colors.yellow, 1);
         obstruction.drawRect(x, y, width, height);
         obstruction.endFill();
         this.addChild(obstruction);
@@ -72,8 +72,8 @@ export class PortObject extends AbstractObject {
 
     generateStations() {
         const stationsContainer = new Container();
-        const stationWidth = getPercentValue(15, this.portWidth);
-        const stationHeight = getPercentValue(23.5, config.height);
+        const stationWidth = getPercentValue(config.station.widthPercentage, this.portWidth);
+        const stationHeight = getPercentValue(config.station.heightPercentage, config.height);
         const center = Math.floor(this._stationCount / 2);
 
         for (let i = 0; i < this._stationCount; i++) {
@@ -81,8 +81,8 @@ export class PortObject extends AbstractObject {
                 name: 'port-station' + i,
                 scene: this.scene,
                 rect: {
-                    x: 0,
-                    y: i * (stationHeight + 10),
+                    x: config.station.borderWidth / 2,
+                    y: i * (stationHeight + 10) + config.station.borderWidth / 2,
                     width: stationWidth,
                     height: stationHeight
                 }
