@@ -41,17 +41,16 @@ export class MainScene extends AbstractScene {
     }
 
     start(): void {
-        const shipGenerator = new ShipGenerator(this);
-        this.shipGenerator = shipGenerator;
+        this.shipGenerator = new ShipGenerator(this);
         const shipController = new ShipManager(this);
 
         shipController.init();
 
         this._intervalId = setInterval(() => {
-            shipGenerator.generate();
+            this.shipGenerator.generate();
         }, config.time.shipGeneration)
 
-        shipGenerator.generate();
+        this.shipGenerator.generate();
     }
 
     destroy() {

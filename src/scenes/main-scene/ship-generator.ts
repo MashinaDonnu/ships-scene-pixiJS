@@ -30,7 +30,6 @@ export class ShipGenerator {
 
     getRandomShip(rect: IRect): AbstractShip {
         const random = Math.floor(Math.random() * 2) + 1;
-        // const random = 2;
 
         switch (random) {
             case 1: {
@@ -44,12 +43,16 @@ export class ShipGenerator {
 
             case 2: {
                 return new CollectorShipObject({
-                    name: 'collector-ship',
+                    name: this.generateShipName('collector-ship'),
                     scene: this.scene,
                     rect,
                     store: this.store
                 })
             }
         }
+    }
+
+    private generateShipName(name: string): string {
+        return `${name} ${Math.random()}`;
     }
 }
