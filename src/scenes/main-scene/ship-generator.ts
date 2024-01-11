@@ -20,7 +20,7 @@ export class ShipGenerator {
     generate(): void {
         const ship = this.getRandomShip({
             x: config.width,
-            y: this.port.entranceCenter,
+            y: this.port.entranceCenter + config.ship.height / 2,
         });
 
         this.scene.addChild(ship);
@@ -36,17 +36,23 @@ export class ShipGenerator {
                return new LoadedShipObject({
                    name: 'loaded-ship',
                    scene: this.scene,
-                   rect
+                   rect,
+                   store: this.store
                })
             }
 
             case 2: {
                 return new CollectorShipObject({
-                    name: 'collector-ship',
+                    name: this.generateShipName('collector-ship'),
                     scene: this.scene,
-                    rect
+                    rect,
+                    store: this.store
                 })
             }
         }
+    }
+
+    private generateShipName(name: string): string {
+        return `${name} ${Math.random()}`;
     }
 }

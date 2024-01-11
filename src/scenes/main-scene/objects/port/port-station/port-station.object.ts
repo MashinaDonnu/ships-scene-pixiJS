@@ -8,14 +8,16 @@ export interface IPortStationObjectParams extends IAbstractObjectParams {
 }
 
 export class PortStationObject extends AbstractObject {
-
-    private _stationView: Graphics;
     rect: IRect;
-    isFilled = false
+    isFilled = false;
     reserved = false;
-    distance = 0
+    distance = 0;
     centerX: number;
     centerY: number;
+    borderWidth = config.station.borderWidth;
+    color = config.colors.yellow;
+
+    private _stationView: Graphics;
 
     constructor(params: IPortStationObjectParams) {
         super(params);
@@ -24,14 +26,14 @@ export class PortStationObject extends AbstractObject {
         this.centerY  = y + height / 2;
         this.centerX  = this.centerY + width;
         this.toEmpty();
-
     }
 
     fill(): void {
         const { x, y, width, height } = this.rect;
         this.removeChild(this._stationView);
         this._stationView = new Graphics();
-        this._stationView.beginFill(0xFF0000, 1)
+        this._stationView.lineStyle(this.borderWidth, this.color)
+        this._stationView.beginFill(this.color, 1)
         this._stationView.drawRect(x, y, width, height)
         this._stationView.endFill()
         this.addChild(this._stationView);
@@ -39,12 +41,11 @@ export class PortStationObject extends AbstractObject {
     }
 
     toEmpty(): void {
-        console.log('toEmpty')
         const { x, y, width, height } = this.rect;
         this.removeChild(this._stationView);
         this._stationView = new Graphics();
-        this._stationView.beginFill(0xFF0000, 0)
-        this._stationView.lineStyle(2, 0xFF0000)
+        this._stationView.beginFill(this.color, 0)
+        this._stationView.lineStyle(this.borderWidth, this.color)
         this._stationView.drawRect(x, y, width, height)
         this.addChild(this._stationView);
         this.isFilled = false;

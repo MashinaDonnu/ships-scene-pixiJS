@@ -5,9 +5,9 @@ import {LoadedShipObject} from "scenes/main-scene/objects/loaded-ship/loaded-shi
 export type TRootState = typeof rootState;
 
 export const rootState = {
-    hello: 'worlddd',
     generatedShipsQueue: <AbstractShip[]>[],
     collectorShipsQueue: <CollectorShipObject[]>[],
     loadedShipsQueue: <LoadedShipObject[]>[],
+    allShipsQueue: <AbstractShip[]>[],
     shipsInPort: <AbstractShip[]>[]
 }

@@ -4,7 +4,7 @@ import {PortObject} from "scenes/main-scene/objects/port/port.object";
 import {config} from "common/config";
 import {ERootActions} from "store/root/root-actions.enum";
 import {ShipGenerator} from "scenes/main-scene/ship-generator";
-import {ShipController} from "scenes/main-scene/ship-controller/ship-controller";
+import {ShipManager} from "scenes/main-scene/ship-manager/ship.manager";
 import {IRect} from "common/interfaces/rect.interface";
 
 export interface IMainSceneParams extends IAbstractSceneParams {}
@@ -17,6 +17,7 @@ export class MainScene extends AbstractScene {
     loadedShipQueueRect: IRect;
 
     shipGenerator: ShipGenerator;
+    private _intervalId: NodeJS.Timeout;
 
     constructor(params: IMainSceneParams) {
         super(params);
@@ -25,53 +26,34 @@ export class MainScene extends AbstractScene {
             .addChild(this.port)
 
         this.collectorsShipQueueRect = {
-            x: this.port.portWidth + config.ship.width / 2 + this.queueOffsetBetweenShips,
+            x: this.port.width + this.queueOffsetBetweenShips + 20,
             y: this.port.entranceRect.y,
             width: 0
         }
 
         this.loadedShipQueueRect = {
-            x: this.port.portWidth + config.ship.width / 2 + this.queueOffsetBetweenShips,
+            x: this.port.width + this.queueOffsetBetweenShips + 20,
             y: this.port.entranceRect.y + this.port.entranceRect.height,
             width: 0
         }
 
-        const store = this.app.store;
+        this.start();
+    }
 
-
-        store.dispatch({type: ERootActions.test})
-
-
-        const shipGenerator = new ShipGenerator(this);
-        this.shipGenerator = shipGenerator;
-        const shipController = new ShipController(this);
+    start(): void {
+        this.shipGenerator = new ShipGenerator(this);
+        const shipController = new ShipManager(this);
 
         shipController.init();
 
-        setInterval(() => {
-            shipGenerator.generate();
-        }, 5000)
+        this._intervalId = setInterval(() => {
+            this.shipGenerator.generate();
+        }, config.time.shipGeneration)
 
-        // setTimeout(() => {
-        //     shipGenerator.generate();
-        // }, 10000)
-        shipGenerator.generate();
-        // const ship = shipGenerator.generate();
-        // this.addChild(ship)
-        //
-        //
-        //
-        // const coords = { x: config.width, y: ship.position.y };
-        // const tween = new Tween(coords)
-        // tween.to({ x: this.port.width, y: ship.position.y }, 3000).onUpdate(() => {
-        //     console.log('onUpdate')
-        //     ship.position.x = coords.x;
-        //     ship.position.y = coords.y;
-        // })
-        //
-        // params.app.pixiApp.ticker.add(() => {
-        //     tween.update()
-        // })
+        this.shipGenerator.generate();
+    }
 
+    destroy() {
+        clearInterval(this._intervalId);
     }
 }

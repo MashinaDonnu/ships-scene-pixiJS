@@ -7,13 +7,17 @@ export interface IDispatchOptions {
     dispatchEvent?: boolean
 }
 
+export interface IStoreSubscribe {
+    unsubscribe: () => void;
+}
+
 export class Store<A, T> {
 
     private _listeners: TListenerCb<T, A, unknown>[] = [];
 
     constructor(private state: T, public reducer: TReducerCb<T, A>) {}
 
-    subscribe(fn: TListenerCb<T, A, unknown>) {
+    subscribe(fn: TListenerCb<T, A, unknown>): IStoreSubscribe {
         this._listeners.push(fn)
         return {
             unsubscribe: () => {

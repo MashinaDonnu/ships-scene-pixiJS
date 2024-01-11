@@ -22,26 +22,6 @@ export class App {
 
     start() {
         this.setCurrentScene(new MainScene({ name: 'main-scene', app: this }));
-        // this._pixiApp.ticker.add(() => {
-        //     console.log('111')
-        // })
-
-        // const spinner = new Graphics();
-        // spinner.beginFill(0xFFFFFF); // Fill color
-        // spinner.drawRect(0, 0, 50, 100); // Draw a rectangle
-        // spinner.endFill();
-        // spinner.pivot.set(25, 50); // Set pivot to the center of the rectangle
-        // spinner.position.x = 200
-        // spinner.position.y = 200
-        // // spinner.x = this.pixiApp.screen.width / 2;
-        // // spinner.y = this.pixiApp.screen.height / 2;
-        // this.pixiApp.stage.addChild(spinner);
-        // console.log(11111, spinner.position)
-        //
-        // this.pixiApp.ticker.add(() => {
-        //     // Rotate the spinner
-        //     spinner.rotation += 0.05;
-        // });
     }
 
     setCurrentScene(scene: AbstractScene): void {
