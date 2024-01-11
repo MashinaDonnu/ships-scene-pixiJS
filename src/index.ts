@@ -1,3 +1,4 @@
+import './index.scss';
 import {App} from "app";
 import {config} from "common/config";
 
